@@ -82,6 +82,6 @@ def save_captions_dic(captions_dic, path):
     """
     Save the captions dictionary to a json file
     """
-    filename = os.path.join(path, "processed_data.json")
+    filename = os.path.join(path, "processed_captions.json")
     with open(filename, "w") as f:
         json.dump(captions_dic, f)
