@@ -4,6 +4,8 @@ from tqdm import tqdm
 import re
 import json
 import os
+from keras.preprocessing.text import Tokenizer
+import pickle
 
 
 def load_raw_captions_data(path, delimiter=","):
@@ -65,19 +67,6 @@ def clean_captions(captions_dic):
     return captions_dic
 
 
-def build_vocab(captions_dic):
-    """
-    Returns vocabulary from the captions dictionary. The vocabulary is a set of unique words.
-    """
-    # build the vocabulary
-    vocab = set()
-    for _, captions in tqdm(captions_dic.items()):
-        for caption in captions:
-            vocab.update(caption.split())
-
-    return vocab
-
-
 def save_captions_dic(captions_dic, path):
     """
     Save the captions dictionary to a json file
@@ -85,3 +74,80 @@ def save_captions_dic(captions_dic, path):
     filename = os.path.join(path, "processed_captions.json")
     with open(filename, "w") as f:
         json.dump(captions_dic, f)
+
+
+def load_captions_dic(filepath):
+    """
+    Load the captions dictionary from a json file
+    """
+    print("Loading captions dictionary...")
+    with open(filepath, "r") as f:
+        captions_dic = json.load(f)
+    
+    return captions_dic
+
+
+def create_tokenizer(captions_dic):
+    """
+    Create a tokenizer from the captions dictionary
+    """
+    # create the tokenizer
+    tokenizer = Tokenizer()
+    
+    # get the captions
+    print("Extracting captions...")
+    captions = []
+    for _, captions_list in tqdm(captions_dic.items()):
+        captions.extend(captions_list)
+    
+    # fit the tokenizer on the captions
+    print("Fitting tokenizer...")
+    tokenizer.fit_on_texts(captions)
+    print(f"Tokenizer fit with vocabulary size: {len(tokenizer.word_index) + 1}")
+
+    return tokenizer
+
+
+def save_tokenizer(tokenizer, filename):
+    """
+    Save the tokenizer
+    """
+    with open(filename, "wb") as f:
+        pickle.dump(tokenizer, f)
+
+
+def load_tokenizer(filename):
+    """
+    Load the tokenizer
+    """
+    print("Loading tokenizer...")
+    with open(filename, "rb") as f:
+        tokenizer = pickle.load(f)
+    
+    return tokenizer
+
+def get_max_length(descriptions):
+    """
+    Return the max length of the captions of all the images
+    """
+    max_length = 0
+    for _, captions_list in tqdm(descriptions.items()):
+        for caption in captions_list:
+            max_length = max(max_length, len(caption.split()))
+    
+    return max_length
+
+
+def convert_captions_to_text(captions, tokenizer):
+    """
+    Convert the captions to text using the tokenizer
+    """
+    texts = []
+
+    for cap in captions:
+        text = tokenizer.sequences_to_texts([cap])[0]
+        text = text.replace("startseq ", "").replace(" endseq", "")
+        print(text)
+        texts.append(text)
+
+    return text

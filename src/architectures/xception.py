@@ -7,7 +7,9 @@ class XceptionFeatureExtractor:
     """
     def __init__(self, input_shape=(299, 299, 3)):
         self.input_shape = input_shape
-        self.base_model = tf.keras.applications.Xception(include_top=False, input_shape=self.input_shape, weights='imagenet')
+        self.base_model = tf.keras.applications.Xception(include_top=False, input_shape=self.input_shape, weights='imagenet', pooling='avg')
+
+        self.output_shape = self.base_model.output_shape[1:]
 
         self.model = self.build()
     
