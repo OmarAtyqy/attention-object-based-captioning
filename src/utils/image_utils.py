@@ -67,7 +67,7 @@ class ImageUtils:
         with tqdm(total=len(futures)) as pbar:
             for future in concurrent.futures.as_completed(futures):
                 images.append(future.result())
-                pbar.update(1)
+                pbar.update(1)  # Update the progress bar with each completed future
         
         return images, filenames
     
