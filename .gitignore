@@ -155,3 +155,5 @@ cython_debug/
 .vscode/
 data/
 models/
+
+scratch.py
