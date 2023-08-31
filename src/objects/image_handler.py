@@ -1,19 +1,36 @@
 """
-This module defines the ImageUtils class, which contains various methods for reading images from a given folder path.
+This module defines the ImageHandler class, which contains various methods for reading images from a given folder path.
 This can be done either sequentially if the number of images is small, or in parallel if the number of images is large.
 """
 
 import os
-from PIL import Image
-import numpy as np
-from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
+import numpy as np
+from PIL import Image
+from tqdm import tqdm
 
-class ImageUtils:
 
-    @staticmethod
-    def read_single_image(args):
+class ImageHandler:
+
+    def __init__(self, folder_path, dimensions):
+        """
+        Initializes the ImageUtils object.
+        :param folder_path: The path to the folder containing the images.
+        :param dimensions: The dimensions to which the images should be resized.
+        """
+
+        # check if the folder path exists
+        if not os.path.exists(folder_path):
+            raise ValueError("The folder path {} does not exist.".format(folder_path))
+
+        self.folder_path = folder_path
+        self.dimensions = dimensions
+
+        self.images, self.filenames = self.read_images(self.folder_path, self.dimensions)
+        self.images_dic = {k:v for k, v in zip(self.filenames, self.images)}
+
+    def read_single_image(self, args):
         """
         Reads a single image from a given path.
         :param image_path: The path to the image.
@@ -27,13 +44,12 @@ class ImageUtils:
         image = image.convert("RGB")            # Convert to RGB if the image has more than 3 channels
         return np.asarray(image)
 
-    @staticmethod
-    def read_sequential(folder_path, dimensions):
+    def read_sequential(self, folder_path, dimensions):
         """
         Reads all images from a given folder sequentially. Use if the number of images is small.
         :param folder_path: The path to the folder containing the images.
         :param dimensions: The dimensions to which the images should be resized.
-        :return: A numpy array of images and a list of their filenames.
+        :return: An array of images and a list of their filenames.
         """
 
         filenames = os.listdir(folder_path)
@@ -42,35 +58,31 @@ class ImageUtils:
         print(f"Reading {len(filenames)} images...")
         for filename in tqdm(filenames):
             image_path = os.path.join(folder_path, filename)
-            image = ImageUtils.read_single_image((image_path, dimensions))
+            image = self.read_single_image((image_path, dimensions))
             images.append(image)
         
-        return np.vstack(images), filenames
+        return images, filenames
 
-    @staticmethod
-    def read_parallel(folder_path, dimensions):
+    def read_parallel(self, folder_path, dimensions):
         """
         Reads all images from a given folder in parallel. Use if the number of images is large.
         :param folder_path: The path to the folder containing the images.
         :param dimensions: The dimensions to which the images should be resized.
-        :return: A numpy array of images and a list of their filenames.
+        :return: An array of images and a list of their filenames.
         """
 
         filenames = os.listdir(folder_path)
         images = []
 
         print(f"Reading {len(filenames)} images...")
-        num_processes = cpu_count()
-        with Pool(num_processes) as pool, tqdm(total=len(filenames), desc="Loading Images") as pbar:
-            args = [(os.path.join(folder_path, filename), dimensions) for filename in filenames]
-            for image in pool.imap(ImageUtils.read_single_image, args):
+        with Pool(cpu_count()) as p:
+            for image in tqdm(p.imap(self.read_single_image, [(os.path.join(folder_path, filename), dimensions) for filename in filenames]), total=len(filenames)):
                 images.append(image)
-                pbar.update(1)
+        
+        return images, filenames
 
-        return np.vstack(images), filenames
     
-    @staticmethod
-    def read_images(folder_path, dimensions, threshold=1000):
+    def read_images(self, folder_path, dimensions, threshold=1000):
         """
         Reads all images from a given folder, either sequentially or in parallel depending on whether or not the number of images exceeds a given threshold.
         :param folder_path: The path to the folder containing the images.
@@ -80,16 +92,6 @@ class ImageUtils:
         """
 
         if len(os.listdir(folder_path)) > threshold:
-            return ImageUtils.read_parallel(folder_path, dimensions)
+            return self.read_parallel(folder_path, dimensions)
         else:
-            return ImageUtils.read_sequential(folder_path, dimensions)
-    
-    @staticmethod
-    def read_filenames(folder_path):
-        """
-        Reads all the filenames in a given folder.
-        :param folder_path: The path to the folder containing the images.
-        :return: A list of filenames.
-        """
-
-        return os.listdir(folder_path)
+            return self.read_sequential(folder_path, dimensions)
