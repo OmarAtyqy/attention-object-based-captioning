@@ -18,23 +18,22 @@ class Decoder:
         """
         # Compress the 2048 input features into a 256 nodes feature vector
         input_layer_1 = Input(shape=self.input_shape)
-        fe1 = Dropout(0.5)(input_layer_1)
+        fe1 = Dropout(0.1)(input_layer_1)
         fe2 = Dense(1024, activation='relu')(fe1)
-        fe3 = Dropout(0.3)(fe2)
+        fe3 = Dropout(0.1)(fe2)
         fe4 = Dense(512, activation='relu')(fe3)
-        fe5 = Dropout(0.1)(fe4)
-        fe6 = Dense(256, activation='relu')(fe5)
 
         # Define the input layer for the LSTM layer
         input_layer_2 = Input(shape=(self.max_length,))
-        se1 = Embedding(self.vocab_size, 256, mask_zero=True)(input_layer_2)
-        se2 = Dropout(0.5)(se1)
-        se3 = LSTM(256)(se2)
+        se1 = Embedding(self.vocab_size, 512, mask_zero=True)(input_layer_2)
+        se2 = Dropout(0.1)(se1)
+        se3 = LSTM(512)(se2)
 
         # merge the two input models
-        decoder1 = add([fe6, se3])
-        decoder2 = Dense(256, activation='relu')(decoder1)
-        outputs = Dense(self.vocab_size, activation='softmax')(decoder2)
+        decoder1 = add([fe4, se3])
+        decoder2 = Dense(512, activation='relu')(decoder1)
+        decoder3 = Dense(256, activation='relu')(decoder2)
+        outputs = Dense(self.vocab_size, activation='softmax')(decoder3)
 
         model = Model(inputs=[input_layer_1, input_layer_2], outputs=outputs)
         model.compile(loss='categorical_crossentropy', optimizer='adam')

@@ -1,11 +1,14 @@
-from multiprocessing import Pool
-import pandas as pd
-from tqdm import tqdm
-import re
 import json
 import os
-from keras.preprocessing.text import Tokenizer
 import pickle
+import re
+from multiprocessing import Pool
+
+import numpy as np
+import pandas as pd
+from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tqdm import tqdm
 
 
 def load_raw_captions_data(path, delimiter=","):
@@ -126,28 +129,49 @@ def load_tokenizer(filename):
     
     return tokenizer
 
+
 def get_max_length(descriptions):
     """
     Return the max length of the captions of all the images
     """
     max_length = 0
-    for _, captions_list in tqdm(descriptions.items()):
+    for _, captions_list in descriptions.items():
         for caption in captions_list:
             max_length = max(max_length, len(caption.split()))
     
     return max_length
 
 
-def convert_captions_to_text(captions, tokenizer):
+def word_for_id(integer, tokenizer):
     """
-    Convert the captions to text using the tokenizer
+    Returns the word corresponding to the given integer
     """
-    texts = []
+    for word, index in tokenizer.word_index.items():
+        if index == integer: return word
+    return None
 
-    for cap in captions:
-        text = tokenizer.sequences_to_texts([cap])[0]
-        text = text.replace("startseq ", "").replace(" endseq", "")
-        print(text)
-        texts.append(text)
 
-    return text
+def generate_desc(model, tokenizer, image, max_length):
+    """
+    Generate a description for an image
+    """
+    # get image info
+    width = image.shape[0]
+    height = image.shape[1]
+    n_channels = image.shape[2]
+
+    in_text = 'start'
+    image = image.reshape((1, width, height, n_channels))
+    for i in tqdm(range(max_length)):
+        sequence = tokenizer.texts_to_sequences([in_text])[0]
+        sequence = pad_sequences([sequence], maxlen=max_length)
+        pred = model.predict([image, sequence], verbose=0)
+        pred = np.argmax(pred)
+        word = word_for_id(pred, tokenizer)
+        if word is None:
+            break
+        in_text += ' ' + word
+        if word == 'end':
+            break
+
+    return in_text
