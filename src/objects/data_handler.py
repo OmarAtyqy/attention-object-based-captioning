@@ -22,10 +22,6 @@ class DataHandler:
 
         self.image_handler = image_handler
         self.caption_handler = caption_handler
-        
-        # check if the filenames in the image handler and the caption handler are the same
-        if self.image_handler.filenames != self.caption_handler.filenames:
-            raise ValueError("The filenames in the image handler and the caption handler do not match.")
         self.filenames = self.image_handler.filenames
 
         if val_split < 0 or val_split >= 1:
