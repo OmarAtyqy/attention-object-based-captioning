@@ -33,7 +33,7 @@ class ImageUtils:
         Reads all images from a given folder sequentially. Use if the number of images is small.
         :param folder_path: The path to the folder containing the images.
         :param dimensions: The dimensions to which the images should be resized.
-        :return: A list of images and a list of their filenames.
+        :return: A numpy array of images and a list of their filenames.
         """
 
         filenames = os.listdir(folder_path)
@@ -45,7 +45,7 @@ class ImageUtils:
             image = ImageUtils.read_single_image((image_path, dimensions))
             images.append(image)
         
-        return images, filenames
+        return np.vstack(images), filenames
 
     @staticmethod
     def read_parallel(folder_path, dimensions):
@@ -53,7 +53,7 @@ class ImageUtils:
         Reads all images from a given folder in parallel. Use if the number of images is large.
         :param folder_path: The path to the folder containing the images.
         :param dimensions: The dimensions to which the images should be resized.
-        :return: A list of images and a list of their filenames.
+        :return: A numpy array of images and a list of their filenames.
         """
 
         filenames = os.listdir(folder_path)
@@ -67,7 +67,7 @@ class ImageUtils:
                 images.append(image)
                 pbar.update(1)
 
-        return images, filenames
+        return np.vstack(images), filenames
     
     @staticmethod
     def read_images(folder_path, dimensions, threshold=1000):
