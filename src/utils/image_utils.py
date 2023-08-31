@@ -7,7 +7,7 @@ import os
 from PIL import Image
 import numpy as np
 from tqdm import tqdm
-from multiprocessing import Pool
+import concurrent.futures
 
 
 class ImageUtils:
@@ -57,11 +57,17 @@ class ImageUtils:
 
         filenames = os.listdir(folder_path)
         images = []
+        futures = []
 
         print(f"Reading {len(filenames)} images...")
-        with Pool() as pool:
-            for image in tqdm(pool.imap_unordered(lambda filename: ImageUtils.read_single_image(os.path.join(folder_path, filename), dimensions), filenames), total=len(filenames)):
-                images.append(image)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for filename in filenames:
+                futures.append(executor.submit(ImageUtils.read_single_image, os.path.join(folder_path, filename), dimensions))
+        
+        with tqdm(total=len(futures)) as pbar:
+            for future in concurrent.futures.as_completed(futures):
+                images.append(future.result())
+                pbar.update(1)
         
         return images, filenames
     
