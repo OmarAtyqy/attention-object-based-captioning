@@ -7,13 +7,13 @@ import os
 from PIL import Image
 import numpy as np
 from tqdm import tqdm
-import concurrent.futures
+from multiprocessing import Pool, cpu_count
 
 
 class ImageUtils:
 
     @staticmethod
-    def read_single_image(image_path, dimensions):
+    def read_single_image(args):
         """
         Reads a single image from a given path.
         :param image_path: The path to the image.
@@ -21,6 +21,7 @@ class ImageUtils:
         :return: The image.
         """
 
+        image_path, dimensions = args
         image = Image.open(image_path)
         image = image.resize(dimensions)
         image = image.convert("RGB")            # Convert to RGB if the image has more than 3 channels
@@ -41,7 +42,7 @@ class ImageUtils:
         print(f"Reading {len(filenames)} images...")
         for filename in tqdm(filenames):
             image_path = os.path.join(folder_path, filename)
-            image = ImageUtils.read_single_image(image_path, dimensions)
+            image = ImageUtils.read_single_image((image_path, dimensions))
             images.append(image)
         
         return images, filenames
@@ -57,18 +58,15 @@ class ImageUtils:
 
         filenames = os.listdir(folder_path)
         images = []
-        futures = []
 
         print(f"Reading {len(filenames)} images...")
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for filename in filenames:
-                futures.append(executor.submit(ImageUtils.read_single_image, os.path.join(folder_path, filename), dimensions))
-        
-        with tqdm(total=len(futures)) as pbar:
-            for future in concurrent.futures.as_completed(futures):
-                images.append(future.result())
-                pbar.update(1)  # Update the progress bar with each completed future
-        
+        num_processes = cpu_count()
+        with Pool(num_processes) as pool, tqdm(total=len(filenames), desc="Loading Images") as pbar:
+            args = [(os.path.join(folder_path, filename), dimensions) for filename in filenames]
+            for image in pool.imap(ImageUtils.read_single_image, args):
+                images.append(image)
+                pbar.update(1)
+
         return images, filenames
     
     @staticmethod
