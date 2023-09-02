@@ -151,3 +151,16 @@ class CaptionHandler:
                 captions, maxlen=self.max_length, padding="post", truncating="post"))
 
         return captions_dic
+    
+    def save_tokenizer(self, path, filename):
+        """
+        Saves the tokenizer to the given filepath.
+        :param filepath: The filepath to save the tokenizer to.
+        """
+
+        # make sure the path exists
+        if not os.path.exists(path):
+            raise ValueError("The path {} does not exist.".format(path))
+        
+        # save the tokenizer
+        self.tokenizer.save(os.path.join(path, filename))
