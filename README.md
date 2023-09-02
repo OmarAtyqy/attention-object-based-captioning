@@ -4,7 +4,7 @@
 
 Welcome to the GitHub repository for the replication of the paper "Image captioning model using attention and object features to mimic human image understanding" by Muhammad Abdelhadie Al-Malla, Assef Jafar, and Nada Ghneim. This project re-implements the work presented in the paper, exploring the fusion of attention mechanisms and object detection features to enhance the quality of image captions and simulate human-like image understanding.
 
-The full paper can be found throughthe following [link](https://journalofbigdata.springeropen.com/articles/10.1186/s40537-022-00571-w)
+The full paper can be found throughthe following [link](https://journalofbigdata.springeropen.com/articles/10.1186/s40537-022-00571-w).
 
 ## Abstract
 
