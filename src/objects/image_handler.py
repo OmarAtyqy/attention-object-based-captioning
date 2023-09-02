@@ -134,7 +134,7 @@ class ImageHandler:
 
         all_features = []
 
-        print("Extracting features...")
+        print("Extracting Importance Factor based features from images...")
         for image in tqdm(images):
 
             # infer

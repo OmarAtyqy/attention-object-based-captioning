@@ -48,7 +48,7 @@ class DataHandler:
         data = []
         for filename in tqdm(filenames):
             for caption in self.caption_handler.captions_dic[filename]:
-                data.append([self.image_handler.images_dic[filename], caption])
+                data.append([self.image_handler.images_dic[filename], self.image_handler.features_dic[filename], caption])
 
         return data
     
@@ -58,10 +58,6 @@ class DataHandler:
         :param val_split: The fraction of the data to use for validation.
         :return: The training and validation filenames.
         """
-
-        # get the dics from the image and caption handlers
-        images_dic = self.image_handler.images_dic
-        captions_dic = self.caption_handler.captions_dic
 
         # shuffle the filenames
         np.random.shuffle(self.filenames)
