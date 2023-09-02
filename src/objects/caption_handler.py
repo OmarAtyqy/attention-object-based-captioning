@@ -4,6 +4,7 @@ as methods to process, tokenize and pad the captions.
 """
 
 import os
+import pickle
 import re
 import string
 
@@ -12,29 +13,44 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tqdm import tqdm
 
+from ..utils.tokenizer_wrapper import TokenizerWrapper
+
 
 class CaptionHandler:
 
-    def __init__(self, filepath, filenames, max_vocab_size=15000):
+    def __init__(self, filenames=None, filepath=None, tokenizer_path=None, max_vocab_size=15000):
         """
-        Initializes the CaptionHandler object.
+        Initializes the CaptionHandler object. If filepath is None, then the object is to be used for inference. In this case,
+        the tokenizer is loaded from the given path and the object returns the maximum length of the captions for each filename.
         :param filepath: The path to the text file containing the captions.
         :param filenames: A list of filenames to read the captions for.
+        :param max_vocab_size: The maximum vocabulary size for the tokenizer.
         """
 
-        # check if the file exists
-        if not os.path.exists(filepath):
-            raise ValueError("The file {} does not exist.".format(filepath))
+        # run the handler in training mode
+        if filepath is not None and filenames is not None: 
+            print("Running caption handler in training mode...")
 
-        self.max_vocab_size = max_vocab_size
-        self.filenames = filenames
-        self.captions_dic = self.read_captions(filepath)
+            # check if the file exists
+            if not os.path.exists(filepath):
+                raise ValueError("The file {} does not exist.".format(filepath))
 
-        # create the tokenizer and get the maximum length of the captions
-        self.tokenizer, self.max_length = self.create_tokenizer()
+            self.max_vocab_size = max_vocab_size
+            self.filenames = filenames
+            self.captions_dic = self.read_captions(filepath)
 
-        # vectorize the captions
-        self.captions_dic = self.vectorize_captions()
+            # create the tokenizer and get the maximum length of the captions
+            self.tokenizer, self.max_length = self.create_tokenizer()
+
+            # vectorize the captions
+            self.captions_dic = self.vectorize_captions()
+        # run the handler in inference mode
+        elif filepath is None and filenames is None and tokenizer_path is not None:
+            print("Running caption handler in inference mode...")
+
+            self.tokenizer, self.max_length = self.load_tokenizer(tokenizer_path)
+        else:
+            raise ValueError("Provide either a filepath and a list of filenames for training mode or only a tokenizer path for inference mode.")
 
     def read_captions_from_txt(self, filepath):
         """
@@ -152,15 +168,30 @@ class CaptionHandler:
 
         return captions_dic
     
-    def save_tokenizer(self, path, filename):
+    def save_tokenizer(self, filepath):
         """
-        Saves the tokenizer to the given filepath.
+        Saves the tokenizer, as well as the max_length in a wrapper to the given filepath.
         :param filepath: The filepath to save the tokenizer to.
         """
-
-        # make sure the path exists
-        if not os.path.exists(path):
-            raise ValueError("The path {} does not exist.".format(path))
         
+        # create a tokenizer wrapper
+        tokenizer_wrapper = TokenizerWrapper(self.tokenizer, self.max_length)
+
         # save the tokenizer
-        self.tokenizer.save(os.path.join(path, filename))
+        print(f"Saving tokenizer to {filepath}...")
+        with open(filepath, "wb") as f:
+            pickle.dump(tokenizer_wrapper, f)
+        
+    def load_tokenizer(self, filepath):
+        """
+        Loads the tokenizer from the given filepath.
+        :param filepath: The filepath to load the tokenizer from.
+        """
+        
+        # load the tokenizer
+        print("Loading tokenizer from {}...".format(filepath))
+        with open(filepath, "rb") as f:
+            tokenizer_wrapper = pickle.load(f)
+        
+        # get the tokenizer and the max_length
+        return tokenizer_wrapper.tokenizer, tokenizer_wrapper.max_length
