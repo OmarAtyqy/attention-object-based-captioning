@@ -6,11 +6,11 @@ as methods to process, tokenize and pad the captions.
 import os
 import re
 import string
-import numpy as np
 
-from tqdm import tqdm
-from tensorflow.keras.preprocessing.text import Tokenizer
+import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tqdm import tqdm
 
 
 class CaptionHandler:

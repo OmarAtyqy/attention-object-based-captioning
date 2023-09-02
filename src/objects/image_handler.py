@@ -6,8 +6,8 @@ attention to the most important parts of the image.
 """
 # TODO: fix batch inference for YOLOv5
 
-import os
 import concurrent.futures
+import os
 
 import numpy as np
 import torch
