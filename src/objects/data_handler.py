@@ -31,7 +31,7 @@ class DataHandler:
         train_filenames, val_filenames = self.train_val_split_dics(val_split)
         self.train_dataset = self.create_dataset(train_filenames)
         self.val_dataset = self.create_dataset(val_filenames)
-    
+
     def create_dataset(self, filenames, name=None):
         """
         Create a dataset from a given list of filenames.
@@ -41,17 +41,18 @@ class DataHandler:
 
         if filenames is None:
             return None
-        
+
         if name is not None:
             print("Creating {} dataset...".format(name))
 
         data = []
         for filename in tqdm(filenames):
             for caption in self.caption_handler.captions_dic[filename]:
-                data.append([self.image_handler.images_dic[filename], self.image_handler.features_dic[filename], caption])
+                data.append([self.image_handler.images_dic[filename],
+                            self.image_handler.features_dic[filename], caption])
 
         return data
-    
+
     def train_val_split_dics(self, val_split=0.2):
         """
         Splits the filenmaes into training and validation sets.
@@ -65,7 +66,8 @@ class DataHandler:
         # calculate the number of images to use for validation and training
         num_val_images = int(val_split * len(self.filenames))
         num_train_images = len(self.filenames) - num_val_images
-        print(f"Preparing {num_train_images} training images and {num_val_images} validation images...")
+        print(
+            f"Preparing {num_train_images} training images and {num_val_images} validation images...")
 
         # split the filenames into training and validation sets
         # This should be done before combining the datasets, otherwise the validation set will contain captions for images in the training set.
@@ -77,7 +79,7 @@ class DataHandler:
             val_filenames = None
 
         return train_filenames, val_filenames
-    
+
     def get_generators(self, batch_size=64):
         """
         Creates the generators for the training and validation datasets.

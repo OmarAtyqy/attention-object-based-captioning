@@ -35,7 +35,7 @@ class CaptionHandler:
 
         # vectorize the captions
         self.captions_dic = self.vectorize_captions()
-    
+
     def read_captions_from_txt(self, filepath):
         """
         Reads the captions from the text file.
@@ -49,7 +49,7 @@ class CaptionHandler:
         lines = lines[1:]
 
         # create a dictionary to store the captions
-        captions_dic = {k:[] for k in self.filenames}
+        captions_dic = {k: [] for k in self.filenames}
 
         print("Reading captions...")
         for line in tqdm(lines):
@@ -58,12 +58,13 @@ class CaptionHandler:
 
             # check if the filename is in the list of filenames
             if filename not in self.filenames:
-                raise ValueError("Filename {} not found in the list of filenames.".format(filename))
+                raise ValueError(
+                    "Filename {} not found in the list of filenames.".format(filename))
 
             captions_dic[filename].append(self.process_text(caption))
-        
+
         return captions_dic
-    
+
     def read_captions_from_csv(self, filepath):
         """
         Reads the captions from the csv file.
@@ -83,8 +84,9 @@ class CaptionHandler:
         elif filepath.endswith(".csv"):
             return self.read_captions_from_csv(filepath)
         else:
-            raise ValueError("The file {} is not a text file or a csv file.".format(self.filepath))
-    
+            raise ValueError(
+                "The file {} is not a text file or a csv file.".format(self.filepath))
+
     def process_text(self, text):
         """
         Processes a given text by converting it to lowercase, removing punctuation and numbers, and adding start and end tokens.
@@ -108,7 +110,7 @@ class CaptionHandler:
         text = "<start> " + text + " <end>"
 
         return text
-    
+
     def create_tokenizer(self):
         """
         Creates a tokenizer from the captions.
@@ -120,7 +122,8 @@ class CaptionHandler:
         max_length = 0
         for captions in self.captions_dic.values():
             texts.extend(captions)
-            max_length = max(max_length, max([len(caption.split()) for caption in captions]))
+            max_length = max(max_length, max(
+                [len(caption.split()) for caption in captions]))
 
         # fit the tokenizer on the texts
         tokenizer = Tokenizer(num_words=self.max_vocab_size, oov_token="<unk>")
@@ -129,7 +132,7 @@ class CaptionHandler:
         tokenizer.fit_on_texts(texts)
 
         return tokenizer, max_length
-    
+
     def vectorize_captions(self):
         """
         Vectorizes the captions.
@@ -137,12 +140,14 @@ class CaptionHandler:
         """
 
         # vectorize the captions
-        captions_dic = {k:[] for k in self.filenames}
+        captions_dic = {k: [] for k in self.filenames}
         for filename, captions in self.captions_dic.items():
-            captions_dic[filename] = self.tokenizer.texts_to_sequences(captions)
-        
+            captions_dic[filename] = self.tokenizer.texts_to_sequences(
+                captions)
+
         # pad the sequences
         for filename, captions in captions_dic.items():
-            captions_dic[filename] = np.array(pad_sequences(captions, maxlen=self.max_length, padding="post", truncating="post"))
-        
+            captions_dic[filename] = np.array(pad_sequences(
+                captions, maxlen=self.max_length, padding="post", truncating="post"))
+
         return captions_dic

@@ -92,12 +92,14 @@ class ImageHandler:
         :return: An array of images and a list of their filenames.
         """
 
-        filenames = sorted(os.listdir(folder_path))  # Sort filenames to maintain order
+        # Sort filenames to maintain order
+        filenames = sorted(os.listdir(folder_path))
         images = []
 
         print(f"Reading {len(filenames)} images in parallel...")
         with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            futures = [executor.submit(self.read_single_image, (os.path.join(folder_path, filename), dimensions)) for filename in filenames]
+            futures = [executor.submit(self.read_single_image, (os.path.join(
+                folder_path, filename), dimensions)) for filename in filenames]
 
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(filenames)):
                 image = future.result()
@@ -118,7 +120,7 @@ class ImageHandler:
             images, filenames = self.read_parallel(folder_path, dimensions)
         else:
             images, filenames = self.read_sequential(folder_path, dimensions)
-        
+
         return images, filenames
 
     def extract_importance_factor_features(self, images):
