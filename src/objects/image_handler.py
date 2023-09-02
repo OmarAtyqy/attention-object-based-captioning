@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 class ImageHandler:
 
-    def __init__(self, folder_path, dimensions, confidence_threshold=0.2):
+    def __init__(self, folder_path, dimensions, confidence_threshold=0.2, preprocess_function=None):
         """
         Initializes the ImageUtils object.
         :param folder_path: The path to the folder containing the images.
@@ -60,8 +60,13 @@ class ImageHandler:
         image_path, dimensions = args
         image = Image.open(image_path)
         image = image.resize(dimensions)
+        
         # Convert to RGB if the image has more than 3 channels
         image = image.convert("RGB")
+
+        # preprocess the image if a preprocess function is provided
+        if self.preprocess_function is not None:
+            image = self.preprocess_function(image)
 
         return np.array(image)
 
