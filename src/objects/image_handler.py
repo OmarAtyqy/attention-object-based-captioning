@@ -37,6 +37,7 @@ class ImageHandler:
 
         self.folder_path = folder_path
         self.dimensions = dimensions
+        self.preprocess_function = preprocess_function
 
         self.images, self.filenames = self.read_images(
             self.folder_path, self.dimensions)
