@@ -27,7 +27,7 @@ class CaptionHandler:
         self.filenames = filenames
         self.captions_dic = self.read_captions()
     
-    def read_captions(self):
+    def read_captions_from_txt(self):
         """
         Reads the captions from the text file.
         :return: A dictionary where the keys are the filenames and the values are lists of captions.
@@ -54,6 +54,27 @@ class CaptionHandler:
             captions_dic[filename].append(self.process_text(caption))
         
         return captions_dic
+    
+    def read_captions_from_csv(self):
+        """
+        Reads the captions from the csv file.
+        :return: A dictionary where the keys are the filenames and the values are lists of captions.
+        """
+        pass
+
+    def read_captions(self):
+        """
+        Reads the captions from the filepath depending on the file extension.
+        :return: A dictionary where the keys are the filenames and the values are lists of captions.
+        """
+
+        # check if the file is a text file or a csv file
+        if self.filepath.endswith(".txt"):
+            return self.read_captions_from_txt()
+        elif self.filepath.endswith(".csv"):
+            return self.read_captions_from_csv()
+        else:
+            raise ValueError("The file {} is not a text file or a csv file.".format(self.filepath))
     
     def process_text(self, text):
         """
