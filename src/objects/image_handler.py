@@ -4,11 +4,10 @@ This can be done either sequentially if the number of images is small, or in par
 ImageHandler also implements the calculation of the Importance Factor, which is used alongside the YOLOv5 model to bring the model's
 attention to the most important parts of the image.
 """
-# TODO: fix the parallel reading of images
 # TODO: fix batch inference for YOLOv5
 
 import os
-from multiprocessing import Pool, cpu_count
+import concurrent.futures
 
 import numpy as np
 import torch
@@ -87,18 +86,21 @@ class ImageHandler:
 
     def read_parallel(self, folder_path, dimensions):
         """
-        Reads all images from a given folder in parallel. Use if the number of images is large.
+        Reads all images from a given folder in parallel while preserving the order. Use if the number of images is large.
         :param folder_path: The path to the folder containing the images.
         :param dimensions: The dimensions to which the images should be resized.
         :return: An array of images and a list of their filenames.
         """
 
-        filenames = os.listdir(folder_path)
+        filenames = sorted(os.listdir(folder_path))  # Sort filenames to maintain order
         images = []
 
         print(f"Reading {len(filenames)} images in parallel...")
-        with Pool(cpu_count()) as p:
-            for image in tqdm(p.imap(self.read_single_image, [(os.path.join(folder_path, filename), dimensions) for filename in filenames]), total=len(filenames)):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+            futures = [executor.submit(self.read_single_image, (os.path.join(folder_path, filename), dimensions)) for filename in filenames]
+
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(filenames)):
+                image = future.result()
                 images.append(image)
 
         return images, filenames
@@ -112,13 +114,11 @@ class ImageHandler:
         :return: A list of images and a list of their filenames.
         """
 
-        # if len(os.listdir(folder_path)) > threshold:
-        #     images, filenames = self.read_parallel(folder_path, dimensions)
-        # else:
-        #     images, filenames = self.read_sequential(folder_path, dimensions)
-
-        images, filenames = self.read_sequential(folder_path, dimensions)
-
+        if len(os.listdir(folder_path)) > threshold:
+            images, filenames = self.read_parallel(folder_path, dimensions)
+        else:
+            images, filenames = self.read_sequential(folder_path, dimensions)
+        
         return images, filenames
 
     def extract_importance_factor_features(self, images):
