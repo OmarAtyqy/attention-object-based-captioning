@@ -65,11 +65,14 @@ class ImageHandler:
         # Convert to RGB if the image has more than 3 channels
         image = image.convert("RGB")
 
+        # Convert to numpy array
+        image = np.array(image)
+
         # preprocess the image if a preprocess function is provided
         if self.preprocess_function is not None:
             image = self.preprocess_function(image)
 
-        return np.array(image)
+        return image
 
     def read_sequential(self, folder_path, dimensions):
         """
