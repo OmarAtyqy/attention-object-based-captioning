@@ -2,8 +2,6 @@
 This script is used to train the model.
 """
 
-import os
-from tqdm import tqdm
 import tensorflow as tf
 import torch
 
@@ -34,7 +32,8 @@ def main():
 
     # extract the importance features
     # Call this function before preprocessing the images, because the images are modified in the process
-    importance_features_dic = ImageUtils.get_importance_features_dic(images_dic, model)
+    importance_features_dic = ImageUtils.get_importance_features_dic(
+        images_dic, model)
 
     # preprocess the images
     images_dic = ImageUtils.preprocess_images(images_dic, preprocess_function)
@@ -46,8 +45,9 @@ def main():
 
     # check if the filenames in the images dictionary and the captions dictionary match
     if set(images_dic.keys()) != set(captions_dic.keys()):
-        raise ValueError("The filenames in the images dictionary and the captions dictionary do not match.")
-    
+        raise ValueError(
+            "The filenames in the images dictionary and the captions dictionary do not match.")
+
     # create the tokenizer
     tokenizer = TextUtils.get_tokenizer(captions_dic)
 
@@ -57,6 +57,7 @@ def main():
 
     # tokenize the captions
     captions_dic = TextUtils.tokenize_captions(captions_dic, tokenizer)
+
 
 # ====================================== MAIN ====================================== #
 if __name__ == "__main__":
