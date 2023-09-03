@@ -44,11 +44,12 @@ class CaptionHandler:
 
             # vectorize the captions
             self.captions_dic = self.vectorize_captions()
+
         # run the handler in inference mode
         elif filepath is None and filenames is None and tokenizer_path is not None:
             print("Running caption handler in inference mode...")
-
             self.tokenizer, self.max_length = self.load_tokenizer(tokenizer_path)
+        
         else:
             raise ValueError("Provide either a filepath and a list of filenames for training mode or only a tokenizer path for inference mode.")
 
@@ -116,6 +117,9 @@ class CaptionHandler:
         # remove punctuation
         text = text.translate(str.maketrans("", "", string.punctuation))
 
+        # remove tabs and line breaks
+        text = text.replace('\t', ' ').replace('\n', ' ')
+
         # remove numbers
         text = re.sub(r"\d+", "", text)
 
@@ -142,7 +146,7 @@ class CaptionHandler:
                 [len(caption.split()) for caption in captions]))
 
         # fit the tokenizer on the texts
-        tokenizer = Tokenizer(num_words=self.max_vocab_size, oov_token="<unk>")
+        tokenizer = Tokenizer(num_words=self.max_vocab_size, oov_token="<unk>", filters="")
 
         # fit the tokenizer on the texts
         tokenizer.fit_on_texts(texts)
@@ -175,7 +179,7 @@ class CaptionHandler:
         """
         
         # create a tokenizer wrapper
-        tokenizer_wrapper = TokenizerWrapper(self.tokenizer, self.max_length)
+        tokenizer_wrapper = self.get_tokenizer_wrapper()
 
         # save the tokenizer
         print(f"Saving tokenizer to {filepath}...")
@@ -195,3 +199,11 @@ class CaptionHandler:
         
         # get the tokenizer and the max_length
         return tokenizer_wrapper.tokenizer, tokenizer_wrapper.max_length
+    
+    def get_tokenizer_wrapper(self):
+        """
+        Returns a tokenizer wrapper containing the tokenizer and the max_length.
+        :return: A tokenizer wrapper.
+        """
+
+        return TokenizerWrapper(self.tokenizer, self.max_length)
