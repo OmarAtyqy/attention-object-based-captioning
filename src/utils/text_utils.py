@@ -147,7 +147,7 @@ class TextUtils:
         return max_length
 
     @staticmethod
-    def tokenize_captions(captions_dic, tokenizer):
+    def tokenize_captions(captions_dic, tokenizer, max_length):
         """
         Tokenizes the captions.
         :param captions_dic: A dictionary where the keys are the filenames and the values are lists of preprocessed captions.
@@ -159,5 +159,10 @@ class TextUtils:
         for filename, caption_list in tqdm(captions_dic.items()):
             tokenized_captions_dic[filename] = tokenizer.texts_to_sequences(
                 caption_list)
+
+        # pad the sequences
+        for filename, captions in tokenized_captions_dic.items():
+            tokenized_captions_dic[filename] = np.array(pad_sequences(
+                captions, maxlen=max_length, padding="post", truncating="post"))
 
         return tokenized_captions_dic

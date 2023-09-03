@@ -43,11 +43,6 @@ def main():
     # read the captions
     captions_dic = TextUtils.read_captions(captions_path)
 
-    # check if the filenames in the images dictionary and the captions dictionary match
-    if set(images_dic.keys()) != set(captions_dic.keys()):
-        raise ValueError(
-            "The filenames in the images dictionary and the captions dictionary do not match.")
-
     # create the tokenizer
     tokenizer = TextUtils.get_tokenizer(captions_dic)
 
@@ -56,7 +51,14 @@ def main():
     max_caption_length = TextUtils.get_max_length(captions_dic)
 
     # tokenize the captions
-    captions_dic = TextUtils.tokenize_captions(captions_dic, tokenizer)
+    captions_dic = TextUtils.tokenize_captions(captions_dic, tokenizer, max_caption_length)
+
+    # ====================================== DATA GENERATION ====================================== #
+
+    # check if the filenames in all three dictionaries are the same
+    if not set(images_dic.keys()) == set(captions_dic.keys()) == set(importance_features_dic.keys()):
+        raise ValueError(
+            "The filenames in the images, captions and importance features dictionaries are not the same.")
 
 
 # ====================================== MAIN ====================================== #
