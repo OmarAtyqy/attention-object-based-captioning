@@ -39,7 +39,8 @@ class DataGenerator(Sequence):
         batch_features = np.array([item[1] for item in batch])
         batch_captions = np.array([item[2] for item in batch])
         
-        return batch_images, batch_features, batch_captions
+        # keras fit expects a tuple of (inputs, targets)
+        return (batch_images, batch_features, batch_captions), batch_captions
     
     def on_epoch_end(self):
         """
