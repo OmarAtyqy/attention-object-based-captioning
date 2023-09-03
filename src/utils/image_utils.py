@@ -23,7 +23,7 @@ class ImageUtils:
         image_path, dimensions = args
         image = Image.open(image_path)
         image = image.resize(dimensions)
-        
+
         # Convert to RGB if the image has more than 3 channels
         image = image.convert("RGB")
 
@@ -31,7 +31,7 @@ class ImageUtils:
         image = np.array(image)
 
         return image
-    
+
     @staticmethod
     def read_sequential(folder_path, dimensions):
         """
@@ -49,11 +49,11 @@ class ImageUtils:
         for filename in tqdm(filenames):
             image_path = os.path.join(folder_path, filename)
             image = ImageUtils.read_single_image((image_path, dimensions))
-            
+
             images_dic[filename] = image
 
         return images_dic
-    
+
     @staticmethod
     def read_parallel(folder_path, dimensions):
         """
@@ -78,7 +78,7 @@ class ImageUtils:
                 images_dic[filenames[futures.index(future)]] = image
 
         return images_dic
-    
+
     @staticmethod
     def read_images(folder_path, dimensions, threshold=1000):
         """
@@ -99,7 +99,7 @@ class ImageUtils:
             images_dic = ImageUtils.read_sequential(folder_path, dimensions)
 
         return images_dic
-    
+
     @staticmethod
     def preprocess_images(images_dic, preprocess_function):
         """
@@ -114,7 +114,7 @@ class ImageUtils:
             images_dic[filename] = preprocess_function(images_dic[filename])
 
         return images_dic
-    
+
     @staticmethod
     def get_importance_features(image, model):
         """
@@ -156,13 +156,15 @@ class ImageUtils:
         importance_factors = importance_factors[indices][:292]
 
         # create the importance features vector
-        importance_features = np.concatenate((X, Y, W, H, scores, classes, importance_factors))
+        importance_features = np.concatenate(
+            (X, Y, W, H, scores, classes, importance_factors))
 
         # pad the vector with 0s to a length of 2048
-        importance_features = np.pad(importance_features, (0, 2048 - len(importance_features)), "constant")
+        importance_features = np.pad(
+            importance_features, (0, 2048 - len(importance_features)), "constant")
 
         return importance_features
-    
+
     @staticmethod
     def get_importance_features_dic(images_dic, model):
         """
@@ -174,6 +176,7 @@ class ImageUtils:
         print("Extracting importance features...")
         importance_features_dic = {}
         for filename in tqdm(images_dic.keys()):
-            importance_features_dic[filename] = ImageUtils.get_importance_features(images_dic[filename], model)
+            importance_features_dic[filename] = ImageUtils.get_importance_features(
+                images_dic[filename], model)
 
         return importance_features_dic

@@ -3,7 +3,8 @@ This module implements the Decoder class.
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import Embedding, LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense, Embedding
+
 from .bahdanau import BahdanauAttention
 
 
@@ -36,7 +37,7 @@ class Decoder(tf.keras.Model):
 
         # initialise the BahdanauAttention layer
         self.attention = BahdanauAttention(units)
-    
+
     def call(self, x, features, hidden):
         """
         This method performs the forward pass through the model.
@@ -62,7 +63,7 @@ class Decoder(tf.keras.Model):
         x = self.dense2(x)
 
         return x, state, attention_weights
-    
+
     def reset_state(self, batch_size):
         """
         This method resets the LSTM state.

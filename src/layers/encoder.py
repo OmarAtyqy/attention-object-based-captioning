@@ -7,8 +7,8 @@ This array is then fed to a Dense layer, which converts it into a (batch, 101, 2
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import Concatenate, Dense
 from tensorflow.keras.applications import Xception
+from tensorflow.keras.layers import Concatenate, Dense
 
 
 class Encoder(tf.keras.Model):
@@ -34,14 +34,16 @@ class Encoder(tf.keras.Model):
 
         # get the xcpetion features from the image and reshape them into a (batch_size, 100, 2048) array
         features = self.xception(image)
-        features = tf.reshape(features, (features.shape[0], features.shape[1]*features.shape[2], features.shape[3]))
+        features = tf.reshape(
+            features, (features.shape[0], features.shape[1]*features.shape[2], features.shape[3]))
 
         # reshape the importance features
-        importance_features = tf.reshape(importance_features, (importance_features.shape[0], 1, importance_features.shape[1]))
+        importance_features = tf.reshape(
+            importance_features, (importance_features.shape[0], 1, importance_features.shape[1]))
 
         # concatenate the xception features and the importance features into a (batch_size, 101, 2048) array
         x = self.concat([features, importance_features])
-        
+
         # convert the concatenated features into a (batch_size, 101, 256) array
         x = self.dense1(x)
 

@@ -3,7 +3,6 @@ This module implements the TextUtils class, which is used to load and preprocess
 """
 
 import os
-import pickle
 import re
 import string
 
@@ -26,7 +25,7 @@ class TextUtils:
         # check if the file exists
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File {filepath} not found.")
-        
+
         # read the file
         print(f"Reading captions from {filepath}...")
         with open(filepath, "r") as f:
@@ -40,21 +39,21 @@ class TextUtils:
 
         # iterate over the lines
         for line in lines:
-                
-                # get the filename and the caption by splitting the line at the first comma
-                filename, caption = line.split(",", 1)
-    
-                # process the caption
-                caption = TextUtils.process_text(caption)
-    
-                # check if the filename is already in the dictionary, if so, append the caption, otherwise create a new list
-                if filename in captions.keys():
-                    captions[filename].append(caption)
-                else:
-                    captions[filename] = [caption]
+
+            # get the filename and the caption by splitting the line at the first comma
+            filename, caption = line.split(",", 1)
+
+            # process the caption
+            caption = TextUtils.process_text(caption)
+
+            # check if the filename is already in the dictionary, if so, append the caption, otherwise create a new list
+            if filename in captions.keys():
+                captions[filename].append(caption)
+            else:
+                captions[filename] = [caption]
 
         return captions
-    
+
     @staticmethod
     def read_captions_from_csv(filepath):
         """
@@ -80,7 +79,7 @@ class TextUtils:
         else:
             raise ValueError(
                 "The file {} is not a text file or a csv file.".format(TextUtils.filepath))
-    
+
     @staticmethod
     def process_text(text):
         """
@@ -108,7 +107,7 @@ class TextUtils:
         text = "<start> " + text + " <end>"
 
         return text
-    
+
     @staticmethod
     def get_tokenizer(captions_dic):
         """
@@ -130,7 +129,7 @@ class TextUtils:
         tokenizer.fit_on_texts(captions)
 
         return tokenizer
-    
+
     @staticmethod
     def get_max_length(captions_dic):
         """
@@ -144,7 +143,7 @@ class TextUtils:
         for caption_list in captions_dic.values():
             for caption in caption_list:
                 max_length = max(max_length, len(caption.split(" ")))
-        
+
         return max_length
 
     @staticmethod
@@ -158,6 +157,7 @@ class TextUtils:
         # tokenize the captions
         tokenized_captions_dic = {}
         for filename, caption_list in tqdm(captions_dic.items()):
-            tokenized_captions_dic[filename] = tokenizer.texts_to_sequences(caption_list)
+            tokenized_captions_dic[filename] = tokenizer.texts_to_sequences(
+                caption_list)
 
         return tokenized_captions_dic
