@@ -21,6 +21,7 @@ captions_path = 'data/test_data/test.txt'
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # batch size
+# Make sure that your batch size is < the number of samples in your dataset for the generators to work properly
 batch_size = 1
 
 # image dimensions
