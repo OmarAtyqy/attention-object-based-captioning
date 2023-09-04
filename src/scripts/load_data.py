@@ -15,6 +15,7 @@ def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), pr
     :param captions_path: the path to the file containing the captions
     :param image_dimensions: the dimensions of the images
     :param preprocess_function: the function used to preprocess the images
+    :param batch_size: the batch size
     :return: a dictionary containing the images, captions, importance features dictionaries, as well as the tokenizer and max caption length
     """
 
@@ -36,7 +37,8 @@ def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), pr
 
     # preprocess the images if a preprocess function is provided
     if preprocess_function is not None:
-        images_dic = ImageUtils.preprocess_images(images_dic, preprocess_function)
+        images_dic = ImageUtils.preprocess_images(
+            images_dic, preprocess_function)
 
     # ====================================== CAPTION PREPROCESSING ====================================== #
 
@@ -51,7 +53,8 @@ def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), pr
     max_caption_length = TextUtils.get_max_length(captions_dic)
 
     # tokenize the captions
-    captions_dic = TextUtils.tokenize_captions(captions_dic, tokenizer, max_caption_length)
+    captions_dic = TextUtils.tokenize_captions(
+        captions_dic, tokenizer, max_caption_length)
 
     # ====================================== DATA GENERATION ====================================== #
 
@@ -59,12 +62,12 @@ def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), pr
     if not set(images_dic.keys()) == set(captions_dic.keys()) == set(importance_features_dic.keys()):
         raise ValueError(
             "The filenames in the images, captions and importance features dictionaries are not the same.")
-    
-    # return dictionary with all the data
+
+    # return the data
     return {
-        "images_dic": images_dic,
-        "captions_dic": captions_dic,
-        "importance_features_dic": importance_features_dic,
-        "tokenizer": tokenizer,
-        "max_caption_length": max_caption_length
+        'images_dic': images_dic,
+        'captions_dic': captions_dic,
+        'importance_features_dic': importance_features_dic,
+        'tokenizer': tokenizer,
+        'max_caption_length': max_caption_length
     }
