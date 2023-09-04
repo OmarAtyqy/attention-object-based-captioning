@@ -4,39 +4,38 @@ This script is used to train the model.
 
 import tensorflow as tf
 
-from src.scripts.load_data import load_data
-from src.utils.data_utils import DataUtils
 from src.objects.data_generator import DataGenerator
+from src.utils.data_utils import DataUtils
 
+
+# ====================================== PARAMETERS ====================================== #
+
+# path to the folder containing the images
+images_folder_path = 'data/test_data/test'
+
+# path to the file containing the captions
+captions_path = 'data/test_data/test.txt'
+
+# preprocess function to use.
+# We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
+preprocess_function = tf.keras.applications.xception.preprocess_input
+
+# batch size
+batch_size = 1
+
+# image dimensions
+# The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
+image_dimensions = (299, 299)
+
+# validation split (percentage of the data used for validation)
+val_split = 0.2
 
 if __name__ == '__main__':
-
-    # ====================================== PARAMETERS ====================================== #
-
-    # path to the folder containing the images
-    images_folder_path = 'data/test_data/test'
-
-    # path to the file containing the captions
-    captions_path = 'data/test_data/test.txt'
-
-    # preprocess function to use.
-    # We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
-    preprocess_function = tf.keras.applications.xception.preprocess_input
-
-    # batch size
-    batch_size = 1
-
-    # image dimensions
-    # The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
-    image_dimensions = (299, 299)
-
-    # validation split (percentage of the data used for validation)
-    val_split = 0.2
 
     # ====================================== DATA GENERATION ====================================== #
 
     # load the data and unpack it
-    data_dic = load_data(images_folder_path, captions_path,
+    data_dic = DataUtils.load_data(images_folder_path, captions_path,
                          image_dimensions, preprocess_function)
 
     # unpack it
