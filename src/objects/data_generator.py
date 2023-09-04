@@ -30,8 +30,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         This function returns the number of batches per epoch.
         :return: the number of batches per epoch
         """
-
-        return int(np.floor(len(self.images_dic) / self.batch_size))
+        # the number of batches per epoch
+        return len(self.images_dic) // self.batch_size
 
     def __getitem__(self, index):
         """
@@ -47,20 +47,28 @@ class DataGenerator(tf.keras.utils.Sequence):
         # get the filenames of the current batch
         batch_filenames = [self.filenames[i] for i in batch_indices]
 
-        # get the images of the current batch
-        batch_images = np.array([self.images_dic[filename]
-                                for filename in batch_filenames])
+        # initialize the data
+        images = []
+        importance_features = []
+        captions = []
+        for filename in batch_filenames:
 
-        # get the captions of the current batch
-        batch_captions = np.array([self.captions_dic[filename]
-                                  for filename in batch_filenames])
+            # for each caption, duplicate the image and importance features
+            for caption in self.captions_dic[filename]:
 
-        # get the importance features of the current batch
-        batch_importance_features = np.array(
-            [self.importance_features_dic[filename] for filename in batch_filenames])
+                # add the image, importance features and caption to the data
+                images.append(self.images_dic[filename])
+                importance_features.append(
+                    self.importance_features_dic[filename])
+                captions.append(caption)
 
-        # return the data for the current batch
-        return [batch_images, batch_importance_features], batch_captions
+        # convert the data to numpy arrays
+        images = np.array(images)
+        importance_features = np.array(importance_features)
+        captions = np.array(captions)
+
+        # return the data
+        return (images, importance_features), captions
 
     def on_epoch_end(self):
         """

@@ -52,7 +52,7 @@ class DataUtils:
             'val_importance_features_dic': val_importance_features_dic,
             'val_captions_dic': val_captions_dic
         }
-    
+
     @staticmethod
     def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), preprocess_function=None):
         """
@@ -117,4 +117,3 @@ class DataUtils:
             'tokenizer': tokenizer,
             'max_caption_length': max_caption_length
         }
-        

@@ -29,7 +29,6 @@ class Encoder(tf.keras.layers.Layer):
         self.concat = Concatenate(axis=1)
         self.dense = Dense(units=units, activation='relu')
 
-
     def call(self, image, importance_features):
         """
         This method performs the forward pass through the model.
@@ -46,7 +45,8 @@ class Encoder(tf.keras.layers.Layer):
 
         # reshape the importance features into a (batch, 1, 2048) array
         shape = tf.shape(importance_features)
-        importance_features = tf.reshape(importance_features, shape=(shape[0], 1, shape[1]))
+        importance_features = tf.reshape(
+            importance_features, shape=(shape[0], 1, shape[1]))
 
         # concatenate the xception features and the importance features to form a (batch, 101, 2048) array
         x = self.concat([importance_features, x])

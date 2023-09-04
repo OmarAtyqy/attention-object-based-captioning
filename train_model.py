@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # load the data and unpack it
     data_dic = DataUtils.load_data(images_folder_path, captions_path,
-                         image_dimensions, preprocess_function)
+                                   image_dimensions, preprocess_function)
 
     # unpack it
     images_dic = data_dic['images_dic']
@@ -55,7 +55,8 @@ if __name__ == '__main__':
     max_caption_length = data_dic['max_caption_length']
 
     # split the data into training and validation sets
-    split_dic = DataUtils.train_test_split(images_dic, importance_features_dic, captions_dic, val_split)
+    split_dic = DataUtils.train_test_split(
+        images_dic, importance_features_dic, captions_dic, val_split)
 
     # unpack the split data
     train_images_dic = split_dic['train_images_dic']
@@ -66,8 +67,10 @@ if __name__ == '__main__':
     val_captions_dic = split_dic['val_captions_dic']
 
     # create the training and validation data generators
-    train_generator = DataGenerator(train_images_dic, train_captions_dic, train_importance_features_dic, batch_size)
-    val_generator = DataGenerator(val_images_dic, val_captions_dic, val_importance_features_dic, batch_size)
+    train_generator = DataGenerator(
+        train_images_dic, train_captions_dic, train_importance_features_dic, batch_size)
+    val_generator = DataGenerator(
+        val_images_dic, val_captions_dic, val_importance_features_dic, batch_size)
 
     # ====================================== MODEL ====================================== #
 
@@ -88,6 +91,5 @@ if __name__ == '__main__':
     # train the model
     model.fit(
         x=train_generator,
-        epochs=1,
-        validation_data=val_generator
+        epochs=1
     )
