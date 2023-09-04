@@ -60,7 +60,7 @@ class DataGenerator(tf.keras.utils.Sequence):
             [self.importance_features_dic[filename] for filename in batch_filenames])
 
         # return the data for the current batch
-        return [batch_images, batch_importance_features, batch_captions], batch_captions
+        return [batch_images, batch_importance_features], batch_captions
 
     def on_epoch_end(self):
         """

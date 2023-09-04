@@ -4,17 +4,17 @@ This script is used to train the model.
 
 import tensorflow as tf
 
+from src.models.model import ImageCaptioningModel
 from src.objects.data_generator import DataGenerator
 from src.utils.data_utils import DataUtils
-
 
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/test_data/test'
+images_folder_path = 'data/test_data/images'
 
 # path to the file containing the captions
-captions_path = 'data/test_data/test.txt'
+captions_path = 'data/test_data/captions.txt'
 
 # preprocess function to use.
 # We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
@@ -26,10 +26,18 @@ batch_size = 1
 
 # image dimensions
 # The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
+# The dimensios should not be below 71
 image_dimensions = (299, 299)
 
 # validation split (percentage of the data used for validation)
 val_split = 0.2
+
+# embedding dimension (dimension of the Dense layer in the encoder and the Embedding layer in the decoder)
+embedding_dim = 256
+
+# number of units in the LSTM, Bahdanau attention and Dense layers
+units = 512
+
 
 if __name__ == '__main__':
 
@@ -60,3 +68,26 @@ if __name__ == '__main__':
     # create the training and validation data generators
     train_generator = DataGenerator(train_images_dic, train_captions_dic, train_importance_features_dic, batch_size)
     val_generator = DataGenerator(val_images_dic, val_captions_dic, val_importance_features_dic, batch_size)
+
+    # ====================================== MODEL ====================================== #
+
+    # create the model
+    model = ImageCaptioningModel(
+        image_dimensions=image_dimensions,
+        tokenizer=tokenizer,
+        max_length=max_caption_length,
+        embedding_dim=embedding_dim,
+        units=units
+    )
+
+    # compile the model
+    model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
+
+    # ====================================== TRAINING ====================================== #
+
+    # train the model
+    model.fit(
+        x=train_generator,
+        epochs=1,
+        validation_data=val_generator
+    )

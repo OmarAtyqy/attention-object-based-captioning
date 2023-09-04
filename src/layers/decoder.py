@@ -10,7 +10,7 @@ from .bahdanau import BahdanauAttention
 
 class Decoder(tf.keras.Model):
 
-    def __init__(self, embedding_dim, units, vocab_size):
+    def __init__(self, vocab_size, embedding_dim, units):
         """
         Constructor method for the Decoder class.
         :param units: The number of units to use in the LSTM layer
@@ -38,18 +38,19 @@ class Decoder(tf.keras.Model):
         # initialise the BahdanauAttention layer
         self.attention = BahdanauAttention(units)
 
-    def call(self, x, features, hidden):
+    def call(self, dec_input, features, hidden):
         """
         This method performs the forward pass through the model.
-        :param x: decoder input (which is the start token)
+        :param dec_input: decoder input
         :param features: the encoder output
         :param hidden: hidden state    
         """
+
         # get the attention weights and context vector
         context_vector, attention_weights = self.attention(features, hidden)
 
         # embed the decoder input
-        x = self.embedding(x)
+        x = self.embedding(dec_input)
 
         # concatenate the context vector and the decoder input
         x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)

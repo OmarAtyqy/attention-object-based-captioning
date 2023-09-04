@@ -1,5 +1,6 @@
 """
 This module implements the Encoder class, which is used to extract features from images using the Xception model.
+For dimensios (299, 299):
 The output of the xcpetion model, which is a (batch, 10, 10, 2048) array, is reshaped into a (batch, 100, 2048) array.
 We also reshape the importance features, which are (batch, 2048) arrays, into (batch, 1, 2048) arrays.
 Both the reshaped xception features and the reshaped importance features are concatenated to form a (batch, 101, 2048) array.
@@ -11,40 +12,46 @@ from tensorflow.keras.applications import Xception
 from tensorflow.keras.layers import Concatenate, Dense
 
 
-class Encoder(tf.keras.Model):
+class Encoder(tf.keras.layers.Layer):
 
-    def __init__(self, units):
+    def __init__(self, img_dims, units):
         """
         Constructor method for the Encoder class.
+        :param img_dims: The dimensions of the images
         :param units: The number of units to use in the Dense layer
         """
         super(Encoder, self).__init__()
 
         # encoder layers
+        self.xception = Xception(
+            include_top=False, weights='imagenet', input_shape=(*img_dims, 3))
+        self.xception.trainable = False
         self.concat = Concatenate(axis=1)
-        self.dense1 = Dense(units, activation="relu")
-        self.xception = Xception(include_top=False, weights='imagenet')
+        self.dense = Dense(units=units, activation='relu')
+
 
     def call(self, image, importance_features):
         """
         This method performs the forward pass through the model.
-        :param x: The input to the model, which is a tuple of (image, importance_features, caption)
+        :param x: image input
         :return: The output of the model, which is a (batch_size, max_length, vocab_size) array
         """
 
-        # get the xcpetion features from the image and reshape them into a (batch_size, 100, 2048) array
-        features = self.xception(image)
-        features = tf.reshape(
-            features, (features.shape[0], features.shape[1]*features.shape[2], features.shape[3]))
+        # extract features from the image
+        x = self.xception(image)
 
-        # reshape the importance features
-        importance_features = tf.reshape(
-            importance_features, (importance_features.shape[0], 1, importance_features.shape[1]))
+        # reshape the xception features into a (batch, 100, 2048) array
+        shape = tf.shape(x)
+        x = tf.reshape(x, shape=(shape[0], shape[1] * shape[2], shape[3]))
 
-        # concatenate the xception features and the importance features into a (batch_size, 101, 2048) array
-        x = self.concat([features, importance_features])
+        # reshape the importance features into a (batch, 1, 2048) array
+        shape = tf.shape(importance_features)
+        importance_features = tf.reshape(importance_features, shape=(shape[0], 1, shape[1]))
 
-        # convert the concatenated features into a (batch_size, 101, 256) array
-        x = self.dense1(x)
+        # concatenate the xception features and the importance features to form a (batch, 101, 2048) array
+        x = self.concat([importance_features, x])
+
+        # pass the concatenated features through the dense layer to convert them into a (batch, 101, 256) array
+        x = self.dense(x)
 
         return x
