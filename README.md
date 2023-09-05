@@ -40,7 +40,7 @@ python -m pip install -r requirements.txt
 
 ### Training
 
-The model comes pretrained on the **Flickr8k** dataset. More on loading in the [inference ](###Inference)section.
+The model comes pretrained on the **Flickr8k** dataset. More on loading in the [inference ](#inference)section.
 
 To train the model on your own dataset, simply open the file `train_model.py` and specify the following parameters:
 
