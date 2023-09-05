@@ -17,7 +17,6 @@ images_folder_path = 'data/images'
 captions_path = 'data/captions.txt'
 
 # preprocess function to use.
-# We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
@@ -25,7 +24,7 @@ val_split = 0
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 20
+batch_size = 26
 
 # epochs
 epochs = 10
