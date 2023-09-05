@@ -21,14 +21,14 @@ captions_path = 'data/captions.txt'
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
-val_split = 0.1
+val_split = 0
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 16
+batch_size = 20
 
 # epochs
-epochs = 1
+epochs = 10
 
 # image dimensions
 # The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
