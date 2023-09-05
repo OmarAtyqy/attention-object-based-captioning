@@ -8,7 +8,7 @@ from tensorflow.keras.layers import LSTM, Dense, Embedding
 from .bahdanau import BahdanauAttention
 
 
-class Decoder(tf.keras.Model):
+class Decoder(tf.keras.layers.Layer):
 
     def __init__(self, vocab_size, embedding_dim, units):
         """
