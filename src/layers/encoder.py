@@ -8,8 +8,8 @@ This array is then fed to a Dense layer, which converts it into a (batch, 101, 2
 """
 
 import tensorflow as tf
-from tensorflow.keras.applications import Xception
-from tensorflow.keras.layers import Concatenate, Dense
+from tensorflow.keras.applications import Xception  # type: ignore
+from tensorflow.keras.layers import Concatenate, Dense  # type: ignore
 
 
 class Encoder(tf.keras.layers.Layer):

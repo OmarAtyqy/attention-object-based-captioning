@@ -3,7 +3,7 @@ This module implements the Decoder class.
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import LSTM, Dense, Embedding
+from tensorflow.keras.layers import LSTM, Dense, Embedding  # type: ignore
 
 from .bahdanau import BahdanauAttention
 

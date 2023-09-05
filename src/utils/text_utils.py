@@ -7,8 +7,8 @@ import re
 import string
 
 import numpy as np
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences  # type: ignore
+from tensorflow.keras.preprocessing.text import Tokenizer  # type: ignore
 from tqdm import tqdm
 
 
