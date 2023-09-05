@@ -237,9 +237,11 @@ class ImageCaptioningModel(tf.keras.Model):
             os.makedirs(path)
 
         # save the models
+        print('Saving the models...')
         self.encoder.save(os.path.join(path, 'encoder'), save_format='tf')
         self.decoder.save(os.path.join(path, 'decoder'), save_format='tf')
         self.attention.save(os.path.join(path, 'attention'), save_format='tf')
+        print('Models saved!')
 
     @staticmethod
     def load_model(path, image_dimensions, tokenizer, max_length, embedding_dim=256, units=512):
@@ -248,14 +250,17 @@ class ImageCaptioningModel(tf.keras.Model):
         """
 
         # load the models
+        print('Loading the models...')
         encoder = tf.keras.models.load_model(
             os.path.join(path, 'encoder'))
         decoder = tf.keras.models.load_model(
             os.path.join(path, 'decoder'))
         attention = tf.keras.models.load_model(
             os.path.join(path, 'attention'))
+        print('Models loaded!')
 
         # create the model
+        print('Constructing the captioner...')
         model = ImageCaptioningModel(
             image_dimensions, tokenizer, max_length, embedding_dim, units)
 
@@ -266,4 +271,6 @@ class ImageCaptioningModel(tf.keras.Model):
 
         # compile and return the model
         model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
+        print('Captioner constructed!')
+
         return model
