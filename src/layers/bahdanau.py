@@ -5,7 +5,7 @@ This module implements the Bahdanau Attention layer.
 import tensorflow as tf
 
 
-class BahdanauAttention(tf.keras.layers.Layer):
+class BahdanauAttention(tf.keras.Model):
 
     def __init__(self, units):
         """
@@ -23,7 +23,7 @@ class BahdanauAttention(tf.keras.layers.Layer):
         """
         This method performs the forward pass through the layer.
         :param x: The input to the layer, which is a tuple of (features, hidden)
-        :return: The output of the layer, which is a (batch_size, attention_features_shape) array
+        :return: The context vector
         """
 
         # expand the dimensions of the hidden state to perform addition
@@ -39,4 +39,4 @@ class BahdanauAttention(tf.keras.layers.Layer):
         context_vector = attention_weights * features
         context_vector = tf.reduce_sum(context_vector, axis=1)
 
-        return context_vector, attention_weights
+        return context_vector

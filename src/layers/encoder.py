@@ -12,7 +12,7 @@ from tensorflow.keras.applications import Xception  # type: ignore
 from tensorflow.keras.layers import Concatenate, Dense  # type: ignore
 
 
-class Encoder(tf.keras.layers.Layer):
+class Encoder(tf.keras.Model):
 
     def __init__(self, img_dims, units):
         """

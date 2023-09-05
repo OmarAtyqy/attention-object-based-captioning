@@ -4,17 +4,17 @@ This script is used to train the model.
 
 import tensorflow as tf
 
-from src.models.model import ImageCaptioningModel
+from src.models.captioner import ImageCaptioningModel
 from src.objects.data_generator import DataGenerator
 from src.utils.data_utils import DataUtils
 
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/images'
+images_folder_path = 'data/test/images'
 
 # path to the file containing the captions
-captions_path = 'data/captions.txt'
+captions_path = 'data/test/captions.txt'
 
 # preprocess function to use.
 # We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
@@ -25,10 +25,10 @@ val_split = 0.1
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 13
+batch_size = 1
 
 # epochs
-epochs = 20
+epochs = 1
 
 # image dimensions
 # The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
@@ -97,6 +97,7 @@ if __name__ == '__main__':
     )
 
     # compile the model
+    # Leave run_eagerly=True because it doesn't work otherwise AND I DON'T KNOW WHY :)
     model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
 
     # ====================================== TRAINING ====================================== #
@@ -115,3 +116,6 @@ if __name__ == '__main__':
         )
 
     # ====================================== SAVING ====================================== #
+
+    # save the model
+    model.save('models')

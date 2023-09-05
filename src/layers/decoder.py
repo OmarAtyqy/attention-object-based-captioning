@@ -5,10 +5,8 @@ This module implements the Decoder class.
 import tensorflow as tf
 from tensorflow.keras.layers import LSTM, Dense, Embedding  # type: ignore
 
-from .bahdanau import BahdanauAttention
 
-
-class Decoder(tf.keras.layers.Layer):
+class Decoder(tf.keras.Model):
 
     def __init__(self, vocab_size, embedding_dim, units):
         """
@@ -35,19 +33,13 @@ class Decoder(tf.keras.layers.Layer):
         self.dense1 = Dense(units, activation="relu")
         self.dense2 = Dense(vocab_size)
 
-        # initialise the BahdanauAttention layer
-        self.attention = BahdanauAttention(units)
-
-    def call(self, dec_input, features, hidden):
+    def call(self, dec_input, context_vector):
         """
         This method performs the forward pass through the model.
         :param dec_input: decoder input
-        :param features: the encoder output
-        :param hidden: hidden state    
+        :param context_vector: context vector
+        :return: The output of the model   
         """
-
-        # get the attention weights and context vector
-        context_vector, attention_weights = self.attention(features, hidden)
 
         # embed the decoder input
         x = self.embedding(dec_input)
@@ -63,7 +55,7 @@ class Decoder(tf.keras.layers.Layer):
         x = tf.reshape(x, (-1, x.shape[2]))
         x = self.dense2(x)
 
-        return x, state, attention_weights
+        return x, state
 
     def reset_state(self, batch_size):
         """
