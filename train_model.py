@@ -103,5 +103,4 @@ if __name__ == '__main__':
         validation_data=val_generator,
     )
 
-    # compile the model
-    model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
+    # ====================================== SAVING ====================================== #
