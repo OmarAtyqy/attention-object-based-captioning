@@ -98,8 +98,7 @@ class ImageCaptioningModel(tf.keras.Model):
         mask = tf.math.logical_not(tf.math.equal(real, 0))
 
         # calculate the loss
-        loss_ = tf.keras.losses.sparse_categorical_crossentropy(
-            real, pred, from_logits=True)
+        loss_ = self.loss_object(real, pred)
         mask = tf.cast(mask, dtype=loss_.dtype)
         loss_ *= mask
         loss_ = tf.reduce_mean(loss_)

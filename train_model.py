@@ -18,11 +18,14 @@ captions_path = 'data/test_data/captions.txt'
 
 # preprocess function to use.
 # We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
-preprocess_function = tf.keras.applications.xception.preprocess_input
+preprocess_function = None
+
+# epochs
+epochs = 1
 
 # batch size
 # Make sure that your batch size is < the number of samples in your dataset for the generators to work properly
-batch_size = 1
+batch_size = 2
 
 # image dimensions
 # The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
@@ -71,6 +74,11 @@ if __name__ == '__main__':
         train_images_dic, train_captions_dic, train_importance_features_dic, batch_size)
     val_generator = DataGenerator(
         val_images_dic, val_captions_dic, val_importance_features_dic, batch_size)
+    
+    # free up memory
+    del images_dic
+    del captions_dic
+    del importance_features_dic
 
     # ====================================== MODEL ====================================== #
 
@@ -91,5 +99,6 @@ if __name__ == '__main__':
     # train the model
     model.fit(
         x=train_generator,
-        epochs=1
+        epochs=epochs,
+        validation_data=val_generator,
     )
