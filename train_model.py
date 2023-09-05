@@ -24,13 +24,13 @@ val_split = 0
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 26
+batch_size = 22
 
 # epochs
 epochs = 10
 
 # image dimensions
-# The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
+# The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
 # The dimensios should not be below 71
 image_dimensions = (299, 299)
 
