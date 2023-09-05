@@ -36,10 +36,10 @@ epochs = 1
 image_dimensions = (299, 299)
 
 # embedding dimension (dimension of the Dense layer in the encoder and the Embedding layer in the decoder)
-embedding_dim = 256
+embedding_dim = 128
 
 # number of units in the LSTM, Bahdanau attention and Dense layers
-units = 512
+units = 256
 
 
 if __name__ == '__main__':
