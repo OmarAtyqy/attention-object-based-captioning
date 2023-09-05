@@ -1,6 +1,6 @@
 """
 This module implements the Encoder class, which is used to extract features from images using the Xception model.
-For dimensios (299, 299):
+For dimensions (299, 299):
 The output of the xcpetion model, which is a (batch, 10, 10, 2048) array, is reshaped into a (batch, 100, 2048) array.
 We also reshape the importance features, which are (batch, 2048) arrays, into (batch, 1, 2048) arrays.
 Both the reshaped xception features and the reshaped importance features are concatenated to form a (batch, 101, 2048) array.
@@ -33,7 +33,8 @@ class Encoder(tf.keras.Model):
         """
         This method performs the forward pass through the model.
         :param x: image input
-        :return: The output of the model, which is a (batch_size, max_length, vocab_size) array
+        :param importance_features: The importance features
+        :return: The output of the layer, which is a (batch_size, max_length, vocab_size) array
         """
 
         # extract features from the image
