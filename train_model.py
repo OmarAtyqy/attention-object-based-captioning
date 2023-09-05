@@ -11,10 +11,10 @@ from src.utils.data_utils import DataUtils
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/test/images'
+images_folder_path = 'data/images'
 
 # path to the file containing the captions
-captions_path = 'data/test/captions.txt'
+captions_path = 'data/captions.txt'
 
 # preprocess function to use.
 # We use Xception to extract the features from the images, so we need to preprocess them accordingly using the preprocess_input function from keras.applications.xception
@@ -25,7 +25,7 @@ val_split = 0.1
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 1
+batch_size = 16
 
 # epochs
 epochs = 1
@@ -109,6 +109,7 @@ if __name__ == '__main__':
             epochs=epochs,
             validation_data=val_generator,
         )
+
     else:
         model.fit(
             x=train_generator,

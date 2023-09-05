@@ -9,6 +9,7 @@ import tensorflow as tf
 from src.layers.bahdanau import BahdanauAttention
 from src.layers.decoder import Decoder
 from src.layers.encoder import Encoder
+from src.objects.tokenizer_wrapper import TokenizerWrapper
 
 
 class ImageCaptioningModel(tf.keras.Model):
@@ -236,6 +237,12 @@ class ImageCaptioningModel(tf.keras.Model):
         if not os.path.exists(path):
             os.makedirs(path)
 
+        # save the tokenizer and the max_length
+        print('Saving the tokenizer and the max_length...')
+        tokenizer_wrapper = TokenizerWrapper(self.tokenizer, self.max_length)
+        tokenizer_wrapper.save(path)
+        print('Tokenizer and max_length saved!')
+
         # save the models
         print('Saving the models...')
         self.encoder.save(os.path.join(path, 'encoder'), save_format='tf')
@@ -244,9 +251,16 @@ class ImageCaptioningModel(tf.keras.Model):
         print('Models saved!')
 
     @staticmethod
-    def load_model(path, image_dimensions, tokenizer, max_length, embedding_dim=256, units=512):
+    def load_model(path, image_dimensions, embedding_dim=256, units=512):
         """
         Load each of the submodules of the model and return the model.
+        Make sure that the specified path contains the following files:
+        - tokenizer_wrapper.pkl
+        - encoder/
+        - decoder/
+        - attention/
+        :param path: The path to the folder containing the model
+        :param image_dimensions: The dimensions of the images that the model was trained on
         """
 
         # load the models
@@ -258,6 +272,12 @@ class ImageCaptioningModel(tf.keras.Model):
         attention = tf.keras.models.load_model(
             os.path.join(path, 'attention'))
         print('Models loaded!')
+
+        # load the tokenizer and the max_length
+        print('Loading the tokenizer and the max_length...')
+        tokenizer_wrapper = TokenizerWrapper.load(path)
+        tokenizer = tokenizer_wrapper.tokenizer
+        max_length = tokenizer_wrapper.max_length
 
         # create the model
         print('Constructing the captioner...')
