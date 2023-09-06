@@ -26,6 +26,7 @@ num_captions_per_image = 5
 
 # dimensions that the images will be resized to before feeding them to the model
 # Make sure they match the dimensions used to train the model
+# If you're using the pretrained model, leave as is
 image_dimensions = (299, 299)
 
 # preprocessing function to use

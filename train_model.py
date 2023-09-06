@@ -25,7 +25,7 @@ val_split = 0.2
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 20
+batch_size = 16
 
 # epochs
 epochs = 30
