@@ -19,7 +19,7 @@ images_folder_path = 'data/test/images'
 
 # output folder name
 # The captions will be saved in csv format in the folder specified by the user
-output_folder_name = 'data'
+output_folder_name = 'data/results'
 
 # dimensions that the images will be resized to before feeding them to the model
 # Make sure they match the dimensions used to train the model
@@ -77,7 +77,7 @@ if __name__ == '__main__':
             [[filename, caption]], columns=['image', 'caption'])])
 
     # save the dataframe
-    output_df.to_csv(os.path.join(output_folder_name, 'captions.csv'),
+    output_df.to_csv(os.path.join(output_folder_name, 'results.csv'),
                      index=False)
     print('Captions saved in {}'.format(
-        os.path.join(output_folder_name, 'captions.csv')))
+        os.path.join(output_folder_name, 'results.csv')))

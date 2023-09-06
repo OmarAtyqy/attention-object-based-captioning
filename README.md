@@ -14,7 +14,7 @@ This project is a replication and extension of the research paper "Image caption
 
 - Implementation of an attention-based Encoder-Decoder architecture.
 - Integration of convolutional features from the ImageNet pre-trained Xception model.
-- Incorporation of object features extracted from the YOLOv4 model pre-trained on MS COCO.
+- Incorporation of object features extracted from the YOLOv5 pre-trained model.
 - Introduction of a novel positional encoding scheme named the "importance factor" to enrich object features.
 - Enhancement of image caption quality through a combination of context-aware techniques.
 
@@ -40,7 +40,7 @@ python -m pip install -r requirements.txt
 
 ### Training
 
-Due to performance issues and lack of hardware, the model comes pretrained on the **Flickr30k** dataset for 9 epochs. For better performance, consider retraining the model.
+The model comes pretrained on the **Flickr30k** dataset for 23 epochs. For better performance, consider retraining the model.
 
 To train the model on your own dataset, simply open the file `train_model.py` and specify the following parameters:
 
@@ -129,7 +129,7 @@ Then run the command:
 python.exe main.py
 ```
 
-The results will be saved as a `captions.csv`inside the specified folder path.
+The results will be saved as a `captions.csv `inside the specified folder path.
 
 ## To-do
 
@@ -139,3 +139,4 @@ The results will be saved as a `captions.csv`inside the specified folder path.
 - [ ] Implement batch inference for object detection instead of sequential inference.
 - [x] Implement `.csv` file support for captions reading (useful for reading the Flickr30k dataset).
 - [ ] GUI interface for use of inference.
+- [ ] implement threaded image preprocessing for faster preprocessing time.

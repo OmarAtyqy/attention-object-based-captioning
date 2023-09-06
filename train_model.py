@@ -11,17 +11,17 @@ from src.utils.data_utils import DataUtils
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/images'
+images_folder_path = 'data/training/images'
 
 # path to the file containing the captions (can either be a csv or a txt file)
 # It should be structured as follows: image,caption (include the header)
-captions_path = 'data/captions.csv'
+captions_path = 'data/training/captions.csv'
 
 # preprocess function to use.
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
-val_split = 0.1
+val_split = 0
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
