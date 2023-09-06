@@ -11,24 +11,24 @@ from src.utils.data_utils import DataUtils
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/test/images'
+images_folder_path = 'data/images'
 
 # path to the file containing the captions (can either be a csv or a txt file)
 # It should be structured as follows: image,caption (include the header)
-captions_path = 'data/test/captions.csv'
+captions_path = 'data/captions.csv'
 
 # preprocess function to use.
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
-val_split = 0
+val_split = 0.2
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 1
+batch_size = 20
 
 # epochs
-epochs = 1
+epochs = 30
 
 # image dimensions
 # The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
@@ -108,6 +108,14 @@ if __name__ == '__main__':
         image_dimensions=image_dimensions
     )
 
+    # create the callback
+    if val_split > 0:
+        callback = tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss', verbose=1, mode='min', patience=5)
+    else:
+        callback = tf.keras.callbacks.EarlyStopping(
+            monitor='loss', verbose=1, mode='min', patience=5)
+
     # compile the model
     # Leave run_eagerly=True because it doesn't work otherwise AND I DON'T KNOW WHY :)
     model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
@@ -120,12 +128,14 @@ if __name__ == '__main__':
             x=train_generator,
             epochs=epochs,
             validation_data=val_generator,
+            callbacks=[callback]
         )
 
     else:
         model.fit(
             x=train_generator,
             epochs=epochs,
+            callbacks=[callback]
         )
 
     # ====================================== SAVING ====================================== #

@@ -38,20 +38,30 @@ class TextUtils:
         # initialise the dictionary
         captions = {}
 
+        # keep track of the number of skipped lines
+        skipped = 0
+
         # iterate over the lines
         for line in lines:
 
-            # get the filename and the caption by splitting the line at the first comma
-            filename, caption = line.split(",", 1)
+            try:
+                # get the filename and the caption by splitting the line at the first comma
+                filename, caption = line.split(",", 1)
 
-            # process the caption
-            caption = TextUtils.process_text(caption)
+                # process the caption
+                caption = TextUtils.process_text(caption)
 
-            # check if the filename is already in the dictionary, if so, append the caption, otherwise create a new list
-            if filename in captions.keys():
-                captions[filename].append(caption)
-            else:
-                captions[filename] = [caption]
+                # check if the filename is already in the dictionary, if so, append the caption, otherwise create a new list
+                if filename in captions.keys():
+                    captions[filename].append(caption)
+                else:
+                    captions[filename] = [caption]
+            except:
+                skipped += 1
+                continue
+
+        # print the number of skipped lines
+        print(f"Skipped {skipped} lines.")
 
         return captions
 
