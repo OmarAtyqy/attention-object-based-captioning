@@ -6,15 +6,23 @@ import os
 
 import tensorflow as tf
 
-from src.layers.bahdanau import BahdanauAttention
-from src.layers.decoder import Decoder
-from src.layers.encoder import Encoder
 from src.objects.tokenizer_wrapper import TokenizerWrapper
+from src.submodels.bahdanau import BahdanauAttention
+from src.submodels.decoder import Decoder
+from src.submodels.encoder import Encoder
 
 
 class ImageCaptioningModel(tf.keras.Model):
 
-    def __init__(self, image_dimensions, tokenizer, max_length, embedding_dim=256, units=512):
+    def __init__(self,
+                 tokenizer,
+                 max_length,
+                 units,
+                 image_dimensions=None,
+                 embedding_dim=None,
+                 encoder=None,
+                 decoder=None,
+                 attention=None):
         """
         Intializer method for the ImageCaptioningModel class.
         :param image_dimensions: The dimensions of the images
@@ -29,18 +37,30 @@ class ImageCaptioningModel(tf.keras.Model):
         self.loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
             from_logits=True, reduction='none')
 
-        # set the parameters
-        self.image_dimensions = image_dimensions
+        # set the general parameters
         self.tokenizer = tokenizer
         self.max_length = max_length
-        self.embedding_dim = embedding_dim
         self.units = units
-        self.vocab_size = len(tokenizer.word_index) + 1
 
-        # create the layers
-        self.encoder = Encoder(image_dimensions, embedding_dim)
-        self.decoder = Decoder(self.vocab_size, embedding_dim, units)
-        self.attention = BahdanauAttention(units)
+        # create the model either in training or inference mode depending on the parameters
+        if (image_dimensions is not None and embedding_dim is not None) and (encoder is None and decoder is None and attention is None):
+
+            # create the layers
+            self.encoder = Encoder(image_dimensions, embedding_dim)
+            self.decoder = Decoder(
+                len(tokenizer.word_index) + 1, embedding_dim, units)
+            self.attention = BahdanauAttention(units)
+
+        elif (image_dimensions is None and embedding_dim is None) and (encoder is not None and decoder is not None and attention is not None):
+
+            # set the layers
+            self.encoder = encoder
+            self.decoder = decoder
+            self.attention = attention
+
+        else:
+            raise Exception(
+                'Either specify the image dimensions, the embedding dimension and the number of units or specify the encoder, the decoder and the attention mechanism')
 
     @tf.function
     def train_step(self, data):
@@ -239,7 +259,8 @@ class ImageCaptioningModel(tf.keras.Model):
 
         # save the tokenizer and the max_length
         print('Saving the tokenizer and the max_length...')
-        tokenizer_wrapper = TokenizerWrapper(self.tokenizer, self.max_length)
+        tokenizer_wrapper = TokenizerWrapper(
+            self.tokenizer, self.max_length, self.units)
         tokenizer_wrapper.save(path)
         print('Tokenizer and max_length saved!')
 
@@ -251,7 +272,7 @@ class ImageCaptioningModel(tf.keras.Model):
         print('Models saved!')
 
     @staticmethod
-    def load_model(path, image_dimensions, embedding_dim=256, units=512):
+    def load_model(path):
         """
         Load each of the submodules of the model and return the model.
         Make sure that the specified path contains the following files:
@@ -262,6 +283,10 @@ class ImageCaptioningModel(tf.keras.Model):
         :param path: The path to the folder containing the model
         :param image_dimensions: The dimensions of the images that the model was trained on
         """
+
+        # make sure the path exists
+        if not os.path.exists(path):
+            raise Exception('The specified path does not exist')
 
         # load the models
         print('Loading the models...')
@@ -278,11 +303,18 @@ class ImageCaptioningModel(tf.keras.Model):
         tokenizer_wrapper = TokenizerWrapper.load(path)
         tokenizer = tokenizer_wrapper.tokenizer
         max_length = tokenizer_wrapper.max_length
+        units = tokenizer_wrapper.units
 
         # create the model
         print('Constructing the captioner...')
         model = ImageCaptioningModel(
-            image_dimensions, tokenizer, max_length, embedding_dim, units)
+            tokenizer=tokenizer,
+            max_length=max_length,
+            units=units,
+            encoder=encoder,
+            decoder=decoder,
+            attention=attention
+        )
 
         # set the models
         model.encoder = encoder
@@ -291,6 +323,6 @@ class ImageCaptioningModel(tf.keras.Model):
 
         # compile and return the model
         model.compile(optimizer=tf.keras.optimizers.Adam(), run_eagerly=True)
-        print('Captioner constructed!')
+        print('Captioner loaded successfully!')
 
         return model

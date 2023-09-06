@@ -8,12 +8,13 @@ import pickle
 
 class TokenizerWrapper:
 
-    def __init__(self, tokenizer, max_length):
+    def __init__(self, tokenizer, max_length, units):
         """
         Initialize the tokenizer and the max_length.
         """
         self.tokenizer = tokenizer
         self.max_length = max_length
+        self.units = units
 
     def save(self, path):
         """

@@ -54,7 +54,7 @@ class DataUtils:
         }
 
     @staticmethod
-    def load_data(images_folder_path, captions_path, image_dimensions=(299, 299), preprocess_function=None):
+    def load_training_data(images_folder_path, captions_path, image_dimensions=(299, 299), preprocess_function=None):
         """
         This function loads the data from the images and captions folders and returns a dictionary with the data.
         :param images_folder_path: the path to the folder containing the images
@@ -116,4 +116,43 @@ class DataUtils:
             'importance_features_dic': importance_features_dic,
             'tokenizer': tokenizer,
             'max_caption_length': max_caption_length
+        }
+
+    @staticmethod
+    def load_inference_data(images_folder_path, image_dimensions=(299, 299), preprocess_function=None):
+        """
+        This function loads the data from the images folder for inference.
+        :param images_folder_path: the path to the folder containing the images
+        :param image_dimensions: the dimensions of the images
+        :param preprocess_function: the function used to preprocess the images
+        :return: a dictionary containing the images, importance features dictionaries.
+        """
+
+        # create the object detection model used to extract the importance features (here we use YOLOv5)
+        model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
+
+        # ====================================== IMAGE PREPROCESSING ====================================== #
+
+        # read the images
+        images_dic = ImageUtils.read_images(
+            folder_path=images_folder_path,
+            dimensions=image_dimensions
+        )
+
+        # extract the importance features
+        # Call this function before preprocessing the images, because the images are modified in the process
+        importance_features_dic = ImageUtils.get_importance_features_dic(
+            images_dic, model)
+
+        # preprocess the images if a preprocess function is provided
+        if preprocess_function is not None:
+            images_dic = ImageUtils.preprocess_images(
+                images_dic, preprocess_function)
+
+        # ====================================== DATA GENERATION ====================================== #
+
+        # return the data
+        return {
+            'images_dic': images_dic,
+            'importance_features_dic': importance_features_dic
         }

@@ -11,10 +11,10 @@ from src.utils.data_utils import DataUtils
 # ====================================== PARAMETERS ====================================== #
 
 # path to the folder containing the images
-images_folder_path = 'data/images'
+images_folder_path = 'data/test/images'
 
 # path to the file containing the captions
-captions_path = 'data/captions.txt'
+captions_path = 'data/test/captions.txt'
 
 # preprocess function to use.
 preprocess_function = tf.keras.applications.xception.preprocess_input
@@ -24,10 +24,10 @@ val_split = 0
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 20
+batch_size = 1
 
 # epochs
-epochs = 10
+epochs = 1
 
 # image dimensions
 # The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
@@ -46,8 +46,8 @@ if __name__ == '__main__':
     # ====================================== DATA GENERATION ====================================== #
 
     # load the data and unpack it
-    data_dic = DataUtils.load_data(images_folder_path, captions_path,
-                                   image_dimensions, preprocess_function)
+    data_dic = DataUtils.load_training_data(images_folder_path, captions_path,
+                                            image_dimensions, preprocess_function)
 
     # unpack it
     images_dic = data_dic['images_dic']
@@ -71,13 +71,25 @@ if __name__ == '__main__':
 
         # create the training and validation data generators
         train_generator = DataGenerator(
-            train_images_dic, train_captions_dic, train_importance_features_dic, batch_size)
+            images_dic=train_images_dic,
+            captions_dic=train_captions_dic,
+            importance_features_dic=train_importance_features_dic,
+            batch_size=batch_size
+        )
         val_generator = DataGenerator(
-            val_images_dic, val_captions_dic, val_importance_features_dic, batch_size)
+            images_dic=val_images_dic,
+            captions_dic=val_captions_dic,
+            importance_features_dic=val_importance_features_dic,
+            batch_size=batch_size
+        )
     else:
         # create the training data generator
         train_generator = DataGenerator(
-            images_dic, captions_dic, importance_features_dic, batch_size)
+            images_dic=images_dic,
+            captions_dic=captions_dic,
+            importance_features_dic=importance_features_dic,
+            batch_size=batch_size
+        )
 
     # free up memory
     del images_dic
@@ -88,11 +100,11 @@ if __name__ == '__main__':
 
     # create the model
     model = ImageCaptioningModel(
-        image_dimensions=image_dimensions,
         tokenizer=tokenizer,
         max_length=max_caption_length,
+        units=units,
         embedding_dim=embedding_dim,
-        units=units
+        image_dimensions=image_dimensions
     )
 
     # compile the model
@@ -118,4 +130,4 @@ if __name__ == '__main__':
     # ====================================== SAVING ====================================== #
 
     # save the model
-    model.save('models')
+    model.save('saved_models')
