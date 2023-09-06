@@ -21,13 +21,10 @@ images_folder_path = 'data/test/images'
 # The captions will be saved in csv format in the folder specified by the user
 output_folder_name = 'data'
 
-# number of captions to generate for each image
-num_captions_per_image = 5
-
 # dimensions that the images will be resized to before feeding them to the model
 # Make sure they match the dimensions used to train the model
 # If you're using the pretrained model, leave as is
-image_dimensions = (299, 299)
+image_dimensions = (192, 192)
 
 # preprocessing function to use
 # Make sure it matches the preprocessing function used to train the model
@@ -70,16 +67,14 @@ if __name__ == '__main__':
         importance_features = tf.expand_dims(
             importance_features_dic[filename], axis=0)
 
-        for _ in range(num_captions_per_image):
+        # generate the captions
+        caption = model((image, importance_features))
 
-            # generate the captions
-            caption = model((image, importance_features))
+        caption = " ".join(caption[0])
 
-            caption = " ".join(caption[0])
-
-            # add the caption to the dataframe
-            output_df = output_df.append(
-                {'image': filename, 'caption': caption}, ignore_index=True)
+        # add the caption to the dataframe
+        output_df = pd.concat([output_df, pd.DataFrame(
+            [[filename, caption]], columns=['image', 'caption'])])
 
     # save the dataframe
     output_df.to_csv(os.path.join(output_folder_name, 'captions.csv'),
