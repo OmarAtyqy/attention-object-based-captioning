@@ -40,7 +40,7 @@ python -m pip install -r requirements.txt
 
 ### Training
 
-Due to performance issues and lack of hardware, the model comes pretrained on the **Flickr30k** dataset for 9 epochs. More on loading in the [inference ](#inference)section.
+Due to performance issues and lack of hardware, the model comes pretrained on the **Flickr30k** dataset for 9 epochs. For better performance, consider retraining the model.
 
 To train the model on your own dataset, simply open the file `train_model.py` and specify the following parameters:
 
