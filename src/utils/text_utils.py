@@ -7,6 +7,7 @@ import re
 import string
 
 import numpy as np
+import pandas as pd
 from tensorflow.keras.preprocessing.sequence import pad_sequences  # type: ignore
 from tensorflow.keras.preprocessing.text import Tokenizer  # type: ignore
 from tqdm import tqdm
@@ -17,7 +18,7 @@ class TextUtils:
     @staticmethod
     def read_captions_from_txt(filepath):
         """
-        Reads the captions from the text file. The file should be structured as follows: image,caption (ignoring the header).
+        Reads the captions from the text file. The file should be structured as follows: image,caption (include the header line).
         :param filepath: The path to the text file.
         :return: A dictionary where the keys are the filenames and the values are lists of preprocessed captions.
         """
@@ -57,11 +58,39 @@ class TextUtils:
     @staticmethod
     def read_captions_from_csv(filepath):
         """
-        Reads the captions from the csv file. The file should be structured as follows: image,caption (ignoring the header).
+        Reads the captions from the csv file. The file should be structured as follows: image,caption (include the header).
         :param filepath: The path to the csv file.
         :return: A dictionary where the keys are the filenames and the values are lists of preprocessed captions.
         """
-        pass
+
+        # check if the file exists
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"File {filepath} not found.")
+
+        # read the file
+        print(f"Reading captions from {filepath}...")
+        df = pd.read_csv(filepath)
+
+        # initialise the dictionary
+        captions = {}
+
+        # iterate over the rows
+        for _, row in df.iterrows():
+
+            # get the filename and the caption
+            filename = row['image']
+            caption = row['caption']
+
+            # process the caption
+            caption = TextUtils.process_text(caption)
+
+            # check if the filename is already in the dictionary, if so, append the caption, otherwise create a new list
+            if filename in captions.keys():
+                captions[filename].append(caption)
+            else:
+                captions[filename] = [caption]
+
+        return captions
 
     @staticmethod
     def read_captions(filepath):

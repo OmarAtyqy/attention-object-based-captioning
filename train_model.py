@@ -13,8 +13,9 @@ from src.utils.data_utils import DataUtils
 # path to the folder containing the images
 images_folder_path = 'data/test/images'
 
-# path to the file containing the captions
-captions_path = 'data/test/captions.txt'
+# path to the file containing the captions (can either be a csv or a txt file)
+# It should be structured as follows: image,caption (include the header)
+captions_path = 'data/test/captions.csv'
 
 # preprocess function to use.
 preprocess_function = tf.keras.applications.xception.preprocess_input
