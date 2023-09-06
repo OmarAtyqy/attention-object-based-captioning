@@ -50,26 +50,27 @@ To train the model on your own dataset, simply open the file `train_model.py` an
 # path to the folder containing the images
 images_folder_path = 'data/images'
 
-# path to the file containing the captions
-captions_path = 'data/captions.txt'
+# path to the file containing the captions (can either be a csv or a txt file)
+# It should be structured as follows: image,caption (include the header)
+captions_path = 'data/captions.csv'
 
 # preprocess function to use.
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
-val_split = 0
+val_split = 0.1
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 32
+batch_size = 20
 
 # epochs
-epochs = 10
+epochs = 30
 
 # image dimensions
-# The Xception model expects images of size 299x299, In order to change the input shape of the model inside the Encoder layer
+# The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
 # The dimensios should not be below 71
-image_dimensions = (299, 299)
+image_dimensions = (192, 192)
 
 # embedding dimension (dimension of the Dense layer in the encoder and the Embedding layer in the decoder)
 embedding_dim = 128
@@ -92,12 +93,49 @@ filename2.jpg,caption 1.
 
 ### Inference
 
-Work-in-progress
+Open the `main.py` file and set up the following prameters:
+
+```
+# ====================================== PARAMETERS ====================================== #
+
+# path to the folder containing the images
+images_folder_path = 'data/test/images'
+
+# output folder name
+# The captions will be saved in csv format in the folder specified by the user
+output_folder_name = 'data'
+
+# dimensions that the images will be resized to before feeding them to the model
+# Make sure they match the dimensions used to train the model
+# If you're using the pretrained model, leave as is
+image_dimensions = (192, 192)
+
+# preprocessing function to use
+# Make sure it matches the preprocessing function used to train the model
+preprocess_function = tf.keras.applications.xception.preprocess_input
+
+# path to the folder containing the submodels
+# Make sure that it contains the following files and folders:
+# - tokenizer_wrapper.pkl: Wrapper object for the tokenizer and the max_length
+# - encoder/: Folder containing the encoder model
+# - decoder/: Folder containing the decoder model
+# - attention/: Folder containing the attention model
+models_path = 'saved_models'
+```
+
+Then run the command:
+
+```
+python.exe main.py
+```
+
+The results will be saved as a `captions.csv`inside the specified folder path.
 
 ## To-do
 
 - [x] Implement data loading API.
 - [x] Implement training script.
-- [ ] Implement inference script.
+- [x] Implement inference script.
 - [ ] Implement batch inference for object detection instead of sequential inference.
-- [ ] Implement `.csv` file support for captions reading (useful for reading the Flickr30k dataset).
+- [x] Implement `.csv` file support for captions reading (useful for reading the Flickr30k dataset).
+- [ ] GUI interface for use of inference.

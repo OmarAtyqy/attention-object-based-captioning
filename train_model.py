@@ -21,11 +21,11 @@ captions_path = 'data/captions.csv'
 preprocess_function = tf.keras.applications.xception.preprocess_input
 
 # validation split (percentage of the data used for validation)
-val_split = 0.2
+val_split = 0.1
 
 # batch size
 # Make sure that your batch size is < the number of samples in both your training and validation datasets for the generators to work properly
-batch_size = 16
+batch_size = 20
 
 # epochs
 epochs = 30
@@ -33,7 +33,7 @@ epochs = 30
 # image dimensions
 # The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
 # The dimensios should not be below 71
-image_dimensions = (299, 299)
+image_dimensions = (192, 192)
 
 # embedding dimension (dimension of the Dense layer in the encoder and the Embedding layer in the decoder)
 embedding_dim = 128
@@ -109,12 +109,8 @@ if __name__ == '__main__':
     )
 
     # create the callback
-    if val_split > 0:
-        callback = tf.keras.callbacks.EarlyStopping(
-            monitor='val_loss', verbose=1, mode='min', patience=5)
-    else:
-        callback = tf.keras.callbacks.EarlyStopping(
-            monitor='loss', verbose=1, mode='min', patience=5)
+    callback = tf.keras.callbacks.EarlyStopping(
+        monitor='loss', verbose=1, mode='min', patience=5)
 
     # compile the model
     # Leave run_eagerly=True because it doesn't work otherwise AND I DON'T KNOW WHY :)
@@ -123,20 +119,34 @@ if __name__ == '__main__':
     # ====================================== TRAINING ====================================== #
 
     # train the model
-    if val_split > 0:
-        model.fit(
-            x=train_generator,
-            epochs=epochs,
-            validation_data=val_generator,
-            callbacks=[callback]
-        )
+    while True:
+        try:
+            if val_split > 0:
+                model.fit(
+                    x=train_generator,
+                    epochs=epochs,
+                    validation_data=val_generator,
+                    callbacks=[callback]
+                )
 
-    else:
-        model.fit(
-            x=train_generator,
-            epochs=epochs,
-            callbacks=[callback]
-        )
+            else:
+                model.fit(
+                    x=train_generator,
+                    epochs=epochs,
+                    callbacks=[callback]
+                )
+
+            break
+        except:
+            batch_size = input(
+                'Batch size is too large. Please enter a smaller batch size: ')
+            batch_size = int(batch_size.strip())
+
+            if val_split > 0:
+                train_generator.batch_size = batch_size
+                val_generator.batch_size = batch_size
+            else:
+                train_generator.batch_size = batch_size
 
     # ====================================== SAVING ====================================== #
 
