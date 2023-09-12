@@ -54,7 +54,7 @@ class DataUtils:
         }
 
     @staticmethod
-    def load_training_data(images_folder_path, captions_path, image_dimensions=(299, 299), preprocess_function=None):
+    def load_training_data(images_folder_path, captions_path, image_dimensions=(299, 299), preprocess_function=None, batch_size_object_detection=32):
         """
         This function loads the data from the images and captions folders and returns a dictionary with the data.
         :param images_folder_path: the path to the folder containing the images
@@ -79,7 +79,7 @@ class DataUtils:
         # extract the importance features
         # Call this function before preprocessing the images, because the images are modified in the process
         importance_features_dic = ImageUtils.get_importance_features_dic(
-            images_dic, model)
+            images_dic, model, batch_size_object_detection)
 
         # preprocess the images if a preprocess function is provided
         if preprocess_function is not None:
@@ -106,6 +106,33 @@ class DataUtils:
 
         # check if the filenames in all three dictionaries are the same
         if not set(images_dic.keys()) == set(captions_dic.keys()) == set(importance_features_dic.keys()):
+
+            # for each dictionary, get the filenames that are not in the other dictionaries
+            images_filenames = set(images_dic.keys())
+            captions_filenames = set(captions_dic.keys())
+            importance_features_filenames = set(importance_features_dic.keys())
+            images_not_in_captions = images_filenames - captions_filenames
+            images_not_in_importance_features = images_filenames - importance_features_filenames
+            captions_not_in_images = captions_filenames - images_filenames
+            captions_not_in_importance_features = captions_filenames - \
+                importance_features_filenames
+            importance_features_not_in_images = importance_features_filenames - images_filenames
+            importance_features_not_in_captions = importance_features_filenames - captions_filenames
+
+            # print the filenames that are not in the other dictionaries
+            print(
+                f"The following filenames are in the images dictionary but not in the captions dictionary: {images_not_in_captions}")
+            print(
+                f"The following filenames are in the images dictionary but not in the importance features dictionary: {images_not_in_importance_features}")
+            print(
+                f"The following filenames are in the captions dictionary but not in the images dictionary: {captions_not_in_images}")
+            print(
+                f"The following filenames are in the captions dictionary but not in the importance features dictionary: {captions_not_in_importance_features}")
+            print(
+                f"The following filenames are in the importance features dictionary but not in the images dictionary: {importance_features_not_in_images}")
+            print(
+                f"The following filenames are in the importance features dictionary but not in the captions dictionary: {importance_features_not_in_captions}")
+
             raise ValueError(
                 "The filenames in the images, captions and importance features dictionaries are not the same.")
 

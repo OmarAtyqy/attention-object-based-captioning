@@ -116,67 +116,85 @@ class ImageUtils:
         return images_dic
 
     @staticmethod
-    def get_importance_features(image, model):
+    def get_importance_features(images_batch, model):
         """
-        Returns the importance features vector of an image.
+        Returns the importance features vector of a batch of images.
         These features are calculated as follows:
-        1. Run the image through the model.
-        2. for each detected object, calculate the importance factor (Area * Confidence Score).
+        1. Run the images through the object detection model.
+        2. for each image, for each detected object, calculate the importance factor (Area * Confidence Score).
         3. rank the objects by importance and pick the first 292.
         4. Create a flattened vector of the following features for each picked object: X, Y, W, H, Confidence Score, Class, Importance Factor.
         5. Pad the vectorof length 2044 (292 * 7 = 2044) with 0s to a length of 2048.
-        :param image: The image.
-        :return: The importance features.
+        :param image: The images.
+        :return: A list of importance features vectors.
         """
 
-        # get the model output
-        results = model(image)
+        # run the images through the object detection model
+        results = model(images_batch)
 
-        # get the bounding boxes, classes and confidence scores
-        X = results.xyxy[0][:, 0].cpu().numpy()
-        Y = results.xyxy[0][:, 1].cpu().numpy()
-        W = (results.xyxy[0][:, 2] - results.xyxy[0][:, 0]).cpu().numpy()
-        H = (results.xyxy[0][:, 3] - results.xyxy[0][:, 1]).cpu().numpy()
-        scores = results.xyxy[0][:, 4].cpu().numpy()
-        classes = results.xyxy[0][:, 5].cpu().numpy()
+        # for each image, for each detected object, calculate the importance factor (Area * Confidence Score)
+        importance_features_vectors_list = []
 
-        # calculate the importance factors
-        importance_factors = W * H * scores
+        # get the bounding boxes, classes and scores of the detected objects of all images
+        for i in range(len(results.xyxy)):
+            res = results.xyxy[i].cpu().numpy()
 
-        # sort the importance factors in descending order and pick the first 292
-        indices = np.argsort(importance_factors)[::-1][:292]
+            # get the bounding boxes, classes and scores of the detected objects of the current image
+            X = res[:, 0]
+            Y = res[:, 1]
+            W = res[:, 2] - res[:, 0]
+            H = res[:, 3] - res[:, 1]
+            classes = res[:, 5]
+            scores = res[:, 4]
 
-        # extract the 292 most important objects
-        X = X[indices][:292]
-        Y = Y[indices][:292]
-        W = W[indices][:292]
-        H = H[indices][:292]
-        scores = scores[indices][:292]
-        classes = classes[indices][:292]
-        importance_factors = importance_factors[indices][:292]
+            # calculate the importance factors
+            importance_factors = W * H * scores
 
-        # create the importance features vector
-        importance_features = np.concatenate(
-            (X, Y, W, H, scores, classes, importance_factors))
+            # sort the objects by importance
+            sorted_indices = np.argsort(importance_factors)[::-1]
 
-        # pad the vector with 0s to a length of 2048
-        importance_features = np.pad(
-            importance_features, (0, 2048 - len(importance_features)), "constant")
+            # pick the first 292 objects
+            sorted_indices = sorted_indices[:292]
 
-        return importance_features
+            # create a flattened vector of the following features for each picked object: X, Y, W, H, Confidence Score, Class, Importance Factor
+            importance_features_vector = np.concatenate(
+                (X[sorted_indices], Y[sorted_indices], W[sorted_indices], H[sorted_indices], scores[sorted_indices], classes[sorted_indices], importance_factors[sorted_indices]))
+
+            # pad the vector of length 2044 (292 * 7 = 2044) with 0s to a length of 2048
+            importance_features_vector = np.pad(
+                importance_features_vector, (0, 2048 - len(importance_features_vector)), 'constant')
+
+            importance_features_vectors_list.append(importance_features_vector)
+
+        return importance_features_vectors_list
 
     @staticmethod
-    def get_importance_features_dic(images_dic, model):
+    def get_importance_features_dic(images_dic, model, batch_size):
         """
         Returns the importance features vectors of a dictionary of images.
         :param images_dic: A dictionary where the keys are the filenames and the values are the images.
+        :param model: The object detection model.
+        :param batch_size: The batch size to use.
         :return: A dictionary where the keys are the filenames and the values are the importance features vectors.
         """
 
-        print("Extracting importance features...")
         importance_features_dic = {}
-        for filename in tqdm(images_dic.keys()):
-            importance_features_dic[filename] = ImageUtils.get_importance_features(
-                images_dic[filename], model)
+
+        # split the images into batches
+        filenames = list(images_dic.keys())
+        batches = [filenames[i:i + batch_size]
+                   for i in range(0, len(filenames), batch_size)]
+
+        # for each batch, get the importance features vectors
+        print(
+            f"Getting importance features in batches of {batch_size} images...")
+        for batch in tqdm(batches):
+            images_batch = [images_dic[filename] for filename in batch]
+            importance_features_vectors_list = ImageUtils.get_importance_features(
+                images_batch, model)
+
+            for i in range(len(batch)):
+                importance_features_dic[batch[i]
+                                        ] = importance_features_vectors_list[i]
 
         return importance_features_dic

@@ -136,7 +136,7 @@ The results will be saved as a `captions.csv `inside the specified folder path.
 - [x] Implement data loading API.
 - [x] Implement training script.
 - [x] Implement inference script.
-- [ ] Implement batch inference for object detection instead of sequential inference.
+- [x] Implement batch inference for object detection instead of sequential inference.
 - [x] Implement `.csv` file support for captions reading (useful for reading the Flickr30k dataset).
 - [ ] GUI interface for use of inference.
 - [ ] implement threaded image preprocessing for faster preprocessing time.

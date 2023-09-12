@@ -30,6 +30,9 @@ batch_size = 20
 # epochs
 epochs = 30
 
+# batch size for the YOLOv5 model obeject feature extraction
+batch_size_object_detection = 64
+
 # image dimensions
 # The Xception model works best with 299x299 images, but you can try other sizes as well if you're having memory issues.
 # The dimensios should not be below 71
@@ -47,8 +50,11 @@ if __name__ == '__main__':
     # ====================================== DATA GENERATION ====================================== #
 
     # load the data and unpack it
-    data_dic = DataUtils.load_training_data(images_folder_path, captions_path,
-                                            image_dimensions, preprocess_function)
+    data_dic = DataUtils.load_training_data(images_folder_path=images_folder_path,
+                                            captions_path=captions_path,
+                                            image_dimensions=image_dimensions,
+                                            preprocess_function=preprocess_function,
+                                            batch_size_object_detection=batch_size_object_detection)
 
     # unpack it
     images_dic = data_dic['images_dic']
@@ -56,6 +62,10 @@ if __name__ == '__main__':
     importance_features_dic = data_dic['importance_features_dic']
     tokenizer = data_dic['tokenizer']
     max_caption_length = data_dic['max_caption_length']
+
+    # assert that the batch size is smaller than the number of samples in the dataset
+    assert batch_size <= len(
+        images_dic), f"The batch size ({batch_size}) is larger than the number of samples in the dataset ({len(images_dic)})."
 
     # split the data into training and validation sets if val_split > 0
     if val_split > 0:
